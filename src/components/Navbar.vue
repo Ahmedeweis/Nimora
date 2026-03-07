@@ -4,11 +4,12 @@
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
     ]">
         <!-- Logo area -->
-        <div class="p-6 flex items-center justify-between">
+        <div style="margin-left: 20px;" class="p-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <img src="/logo.webp" alt="nano banana bro" class="w-8 h-8 rounded-lg" />
                 <div>
-                    <h1 class="text-gray-900 font-semibold text-lg leading-tight" style="margin: 10px 0 0 0 ;">Nimora
+                    <h1 class="text-gray-900 font-semibold  leading-tight"
+                        style="margin: 10px 0 0 0 ; font-size: 24px;">Nimora
                     </h1>
                     <p class="text-gray-500 text-xs">Merchant Portal</p>
                 </div>
@@ -22,26 +23,26 @@
         </div>
 
         <!-- Navigation links -->
-        <div class="flex-1 px-4 pb-6 space-y-6">
+        <div class="flex-1 px-4 pb-6 space-y-6" style="padding-top: 10px; border-top: solid 3px #E9E9E8;">
             <!-- Main Dashboard -->
             <div>
-                <a href="#"
+                <router-link to="/dashboard" style="background-color: black;"
                     class="flex items-center space-x-3 px-4 py-2.5 bg-[#2A2421] text-white rounded-xl text-sm font-medium transition-colors">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
                     <span>Dashboard</span>
-                </a>
+                </router-link>
             </div>
 
             <!-- Products Section -->
             <div>
-                <h2 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Products</h2>
+                <h2 class="px-4 text-[15px] font-bold text-black uppercase tracking-wider mb-2">Products</h2>
                 <ul class="space-y-1">
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -52,7 +53,7 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -63,7 +64,7 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -74,7 +75,7 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -85,7 +86,7 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -99,11 +100,11 @@
 
             <!-- Customers Section -->
             <div>
-                <h2 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Customers</h2>
+                <h2 class="px-4 text-[15px] font-bold text-black uppercase tracking-wider mb-2">Customers</h2>
                 <ul class="space-y-1">
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -114,7 +115,7 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -128,11 +129,11 @@
 
             <!-- Store Section -->
             <div>
-                <h2 class="px-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Store</h2>
+                <h2 class="px-4 text-[15px] font-bold text-black uppercase tracking-wider mb-2">Store</h2>
                 <ul class="space-y-1">
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -145,18 +146,18 @@
                     </li>
                     <li>
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                             </svg>
-                            <span>Branding</span>
+                            <span class="text-[#64615F]">Branding</span>
                         </a>
                     </li>
                     <li class="pt-2 border-t border-gray-100/50 mt-4">
                         <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
+                            class="flex items-center space-x-3 px-4 py-2 text-red-500 text-bold rounded-xl text-sm font-medium transition-colors">
                             <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

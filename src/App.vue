@@ -13,7 +13,7 @@
 
     </div>
     <!-- </div> -->
-    <ScrollToTop />
+    <!-- <ScrollToTop /> -->
 </template>
 
 <script setup>
