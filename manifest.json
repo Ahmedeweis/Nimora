@@ -1,18 +1,13 @@
 {
-    "name": "Nahg Al-Tanfeez Business Services",
-    "short_name": "Nahg",
-    "description": "Strategic Transformation Partner for Non-Profit Organizations in Saudi Arabia",
+    "name": "Nimora Merchant Dashboard",
+    "short_name": "Nimora",
+    "description": "E-commerce dashboard for managing products, catalogs, and customers.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#F2F4F5",
-    "theme_color": "#002D2D",
+    "background_color": "#FAFAFA",
+    "theme_color": "#8C7A6B",
     "orientation": "portrait",
     "icons": [
-        {
-            "src": "/logo.webp",
-            "sizes": "192x192 512x512",
-            "type": "image/webp"
-        },
         {
             "src": "/logo.png",
             "sizes": "192x192 512x512",
