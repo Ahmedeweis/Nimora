@@ -9,7 +9,7 @@
     <div class="flex-1 overflow-y-auto w-full">
       <main class="min-h-full flex flex-col">
         <HeaderComponent @open-sidebar="isSidebarOpen = true" />
-        <PaginationComponent />
+
         <div class="px-4 lg:px-8 py-4 lg:py-6 max-w-7xl mx-auto w-full" style="padding-top: 0;">
           <!-- Welcome Section -->
           <div class=" mb-8">

@@ -26,9 +26,14 @@
         <div class="flex-1 px-4 pb-6 space-y-6" style="padding-top: 10px; border-top: solid 3px #E9E9E8;">
             <!-- Main Dashboard -->
             <div>
-                <router-link to="/" style="background-color: black;"
-                    class="flex items-center space-x-3 px-4 py-2.5 bg-[#2A2421] text-white rounded-xl text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <router-link to="/" :style="route.path === '/' ? 'background-color: #2A2421;' : ''" :class="[
+                    'flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
+                    route.path === '/'
+                        ? 'text-white'
+                        : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50'
+                ]">
+                    <svg :class="['w-5 h-5 flex-shrink-0', route.path === '/' ? 'text-white' : 'text-gray-400']"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
@@ -41,10 +46,14 @@
                 <h2 class="px-4 text-[15px] font-bold text-black uppercase tracking-wider mb-2">Products</h2>
                 <ul class="space-y-1">
                     <li>
-                        <router-link to="/products"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                        <router-link to="/products" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/products')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/products') ? 'text-black' : 'text-gray-400']"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
@@ -185,6 +194,10 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
 defineProps({
     isOpen: {
         type: Boolean,
