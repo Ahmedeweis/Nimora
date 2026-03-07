@@ -1,13 +1,24 @@
 <template>
-    <nav
-        class="w-64 h-screen bg-white border-r border-gray-100 hidden lg:flex flex-col flex-shrink-0 sticky top-0 overflow-y-auto overflow-x-hidden">
+    <nav :class="[
+        'w-64 h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 fixed lg:sticky top-0 z-50 overflow-y-auto overflow-x-hidden transition-transform duration-300 ease-in-out',
+        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    ]">
         <!-- Logo area -->
-        <div class="p-6 flex items-center space-x-3">
-            <img src="../assets/logo-nano-banana-bro.svg" alt="nano banana bro" class="w-8 h-8 rounded-lg" />
-            <div>
-                <h1 class="text-gray-900 font-semibold text-lg leading-tight">Nimora</h1>
-                <p class="text-gray-500 text-xs">Merchant Portal</p>
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="/logo.webp" alt="nano banana bro" class="w-8 h-8 rounded-lg" />
+                <div>
+                    <h1 class="text-gray-900 font-semibold text-lg leading-tight" style="margin: 10px 0 0 0 ;">Nimora
+                    </h1>
+                    <p class="text-gray-500 text-xs">Merchant Portal</p>
+                </div>
             </div>
+            <!-- Close Button (Mobile Only) -->
+            <button @click="$emit('close')" class="lg:hidden text-gray-400 hover:text-gray-600 p-1">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
 
         <!-- Navigation links -->
@@ -173,4 +184,12 @@
 </template>
 
 <script setup>
+defineProps({
+    isOpen: {
+        type: Boolean,
+        default: false
+    }
+})
+
+defineEmits(['close'])
 </script>

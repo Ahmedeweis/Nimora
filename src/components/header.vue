@@ -19,10 +19,19 @@
             <!-- Right Actions & Mobile Logo/Menu -->
             <div
                 class="flex items-center justify-between w-full lg:w-auto overflow-x-auto no-scrollbar order-first lg:order-last">
-                <!-- Mobile Logo (hidden on lg) -->
-                <div class="flex items-center space-x-2 lg:hidden">
-                    <img src="../assets/logo-nano-banana-bro.svg" alt="nano banana bro" class="w-8 h-8 rounded-lg" />
-                    <span class="font-semibold text-gray-900">Nimora</span>
+                <!-- Mobile Logo & Menu Toggle (hidden on lg) -->
+                <div class="flex items-center space-x-3 lg:hidden">
+                    <button @click="$emit('open-sidebar')"
+                        class="p-1 -ml-1 text-gray-500 hover:text-gray-900 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img src="/logo.webp" alt="nano banana bro" class="w-8 h-8 rounded-lg" />
+                        <span class="font-semibold text-gray-900">Nimora</span>
+                    </div>
                 </div>
 
                 <!-- Right Actions -->
@@ -217,6 +226,7 @@
 </template>
 
 <script setup>
+defineEmits(['open-sidebar'])
 </script>
 
 <style scoped>
