@@ -49,6 +49,21 @@ const routes = [
     path: '/catalogs/:id',
     name: 'catalog-details',
     component: () => import('../views/CatalogDetails.vue')
+  },
+  {
+    path: '/permissions',
+    name: 'permissions',
+    component: () => import('../views/Permissions.vue')
+  },
+  {
+    path: '/interest-requests',
+    name: 'interest-requests',
+    component: () => import('../views/InterestRequests.vue')
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('../views/Settings.vue')
   }
 ]
 const router = createRouter({
