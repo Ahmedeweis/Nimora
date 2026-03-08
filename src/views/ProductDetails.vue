@@ -327,10 +327,11 @@
                                             </p>
                                         </div>
                                     </div>
-                                    <!-- Simple Toggle -->
-                                    <div class="w-11 h-6 bg-gray-200 rounded-full relative cursor-pointer">
-                                        <div
-                                            class="w-5 h-5 bg-white rounded-full absolute top-[2px] left-[2px] shadow-sm">
+                                    <div @click="priceRequiresApproval = !priceRequiresApproval"
+                                        :class="priceRequiresApproval ? 'bg-[#8C7A6B]' : 'bg-gray-200'"
+                                        class="w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-200">
+                                        <div :class="priceRequiresApproval ? 'translate-x-5' : 'translate-x-0'"
+                                            class="w-5 h-5 bg-white rounded-full absolute top-[2px] left-[2px] shadow-sm transition-transform duration-200">
                                         </div>
                                     </div>
                                 </div>
@@ -705,6 +706,7 @@ const isSidebarOpen = ref(false)
 const showDeleteModal = ref(false)
 const showAddUserModal = ref(false)
 const showViewAllModal = ref(false)
+const priceRequiresApproval = ref(true)
 
 const catalogLink = 'https://nimora-studio.lovable.app/catalog/nimora-studio'
 const linkCopied = ref(false)

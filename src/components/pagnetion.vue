@@ -1,7 +1,8 @@
 <template>
     <!-- Footer/Pagination -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-8 pb-8 text-sm">
-        <p class="text-gray-500">Showing {{ (currentPage - 1) * 5 + 1 }}-{{ Math.min(1060, currentPage * 5) }} of 1060
+        <p class="text-gray-500">Showing {{ (currentPage - 1) * perPage + 1 }}-{{ Math.min(totalItems, currentPage *
+            perPage) }} of {{ totalItems }}
             products</p>
 
         <div class="flex items-center gap-1.5">
@@ -56,34 +57,29 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 
-const currentPage = ref(1)
-const totalPages = ref(10)
+const props = defineProps({
+    currentPage: { type: Number, default: 1 },
+    totalPages: { type: Number, default: 1 },
+    totalItems: { type: Number, default: 0 },
+    perPage: { type: Number, default: 5 }
+})
+
+const emit = defineEmits(['page-change'])
 
 const setPage = (p) => {
-    currentPage.value = p
+    if (p >= 1 && p <= props.totalPages) emit('page-change', p)
 }
 
-const next = () => {
-    if (currentPage.value < totalPages.value) currentPage.value++
-}
-
-const prev = () => {
-    if (currentPage.value > 1) currentPage.value--
-}
-
-const nextFive = () => {
-    currentPage.value = Math.min(totalPages.value, currentPage.value + 5)
-}
-
-const prevFive = () => {
-    currentPage.value = Math.max(1, currentPage.value - 5)
-}
+const next = () => setPage(props.currentPage + 1)
+const prev = () => setPage(props.currentPage - 1)
+const nextFive = () => setPage(Math.min(props.totalPages, props.currentPage + 5))
+const prevFive = () => setPage(Math.max(1, props.currentPage - 5))
 
 const visiblePages = computed(() => {
-    let start = Math.min(currentPage.value, totalPages.value - 3)
+    let start = Math.min(props.currentPage, props.totalPages - 3)
     start = Math.max(1, start)
-    return [start, start + 1, start + 2]
+    return [start, start + 1, start + 2].filter(p => p <= props.totalPages)
 })
 </script>

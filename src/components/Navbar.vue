@@ -61,48 +61,61 @@
                         </router-link>
                     </li>
                     <li>
-                        <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                        <router-link to="/add-product" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/add-product')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/add-product') ? 'text-black' : 'text-gray-400']"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 4v16m8-8H4" />
                             </svg>
                             <span>Add New</span>
-                        </a>
+                        </router-link>
                     </li>
                     <li>
-                        <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                            </svg>
+                        <router-link to="/inventory" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/inventory')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <img src="../assets/imgs/inventory.svg" alt="Inventory"
+                                :class="['w-5 h-5 flex-shrink-0 transition-opacity', route.path.startsWith('/inventory') ? 'opacity-100' : 'opacity-60']">
                             <span>Inventory</span>
-                        </a>
+                        </router-link>
                     </li>
                     <li>
-                        <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                        <router-link to="/categories" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/categories')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/categories') ? 'text-black' : 'text-gray-400']"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                             </svg>
                             <span>Categories</span>
-                        </a>
+                        </router-link>
                     </li>
                     <li>
-                        <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                        <router-link to="/catalogs" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/catalogs')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/catalogs') ? 'text-black' : 'text-gray-400']"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             <span>Catalogs</span>
-                        </a>
+                        </router-link>
                     </li>
                 </ul>
             </div>

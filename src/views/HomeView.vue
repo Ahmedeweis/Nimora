@@ -129,13 +129,13 @@
           <div class="mb-5">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
             <div class="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-2 sm:gap-3">
-              <button
+              <router-link to="/add-product"
                 class="hover-one flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-[#8C7A6B] hover:bg-[#7a6b5d] text-white px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 <span class="truncate">Add Product</span>
-              </button>
+              </router-link>
 
               <button
                 class="hover-two flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">

@@ -14,10 +14,22 @@
                 <div class="px-4 lg:px-8 py-4 lg:py-6 max-w-7xl mx-auto w-full pt-6" style="padding-top: 0;">
 
                     <!-- Page Title -->
-                    <div class="mb-5">
-                        <h1 class="text-[26px] font-bold text-gray-900 mb-1 tracking-tight" style="margin: 0 0;">Product
-                            Management</h1>
-                        <p class="text-gray-500 text-[15px]">Manage your product catalog</p>
+                    <div class="mb-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                        <div>
+                            <h1 class="text-[26px] font-bold text-gray-900 mb-1 tracking-tight" style="margin: 0 0;">
+                                Product
+                                Management</h1>
+                            <p class="text-gray-500 text-[15px]">Manage your product catalog</p>
+                        </div>
+                        <router-link to="/add-product" style="background-color: #8C7A6B"
+                            class="flex w-max items-center gap-2 px-5 py-2.5 bg-[#8C7A6B] hover:bg-[#7a6b5d] text-white rounded-xl text-sm font-medium transition-colors shadow-sm">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Product
+                        </router-link>
                     </div>
 
                     <!-- Catalog Link Box -->
@@ -218,7 +230,9 @@
                         </router-link>
                     </div>
 
-                    <PaginationComponent />
+                    <PaginationComponent :current-page="currentPage" :total-pages="totalPages"
+                        :total-items="filteredProducts.length" :per-page="perPage"
+                        @page-change="currentPage = $event" />
 
                 </div>
             </main>
@@ -242,6 +256,8 @@ import productImg5 from '../assets/imgs/product/5.webp'
 const isSidebarOpen = ref(false)
 const currentView = ref('grid')
 const activeFilter = ref('All')
+const currentPage = ref(1)
+const perPage = 5
 
 const catalogLink = 'https://nimora-studio.lovable.app/catalog/nimora-studio'
 const linkCopied = ref(false)
@@ -310,6 +326,8 @@ const filteredProducts = computed(() => {
     if (activeFilter.value === 'All') return products.value;
     return products.value.filter(p => p.status === activeFilter.value);
 })
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredProducts.value.length / perPage)))
 
 const getGridBadgeTextClass = (status) => {
     switch (status) {

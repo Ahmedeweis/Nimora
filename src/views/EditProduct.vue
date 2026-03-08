@@ -1,7 +1,7 @@
 <template>
     <div
         class="flex h-screen bg-[#fafafa] overflow-hidden flex-col lg:flex-row relative w-full font-['Inter',sans-serif]">
-        <Navbar :isOpen="isSidebarOpen" @close="isSidebarOpen = false" />
+        <Navbar :is-open="isSidebarOpen" @close="isSidebarOpen = false" />
 
         <!-- Backdrop for mobile -->
         <div v-if="isSidebarOpen" @click="isSidebarOpen = false"
@@ -9,10 +9,10 @@
 
         <div class="flex-1 overflow-y-auto w-full">
             <main class="min-h-full flex flex-col">
-                <HeaderComponent @toggle-sidebar="isSidebarOpen = true" />
+                <HeaderComponent @open-sidebar="isSidebarOpen = true" />
 
                 <!-- Page Content -->
-                <div class="p-4 lg:p-8 max-w-[1200px] mx-auto w-full" س>
+                <div class="p-4 lg:p-8 max-w-[1200px] mx-auto w-full" s>
                     <div class="relative w-full">
 
                         <!-- Header -->
@@ -34,8 +34,8 @@
 
                             <!-- Actions -->
                             <div class="flex items-center gap-3">
-                                <router-link :to="`/products/${$route.params.id || 1}`"
-                                    class="px-5 py-2.5 border border-gray-200 text-gray-700 bg-white rounded-xl text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors">
+                                <button @click="handleCancel"
+                                    class="px-5 py-2.5 border border-gray-200 text-gray-700 bg-white rounded-xl text-sm font-medium hover:bg-gray-50 flex items-center gap-2 transition-colors cursor-pointer">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="10"></circle>
@@ -43,8 +43,8 @@
                                         <line x1="9" y1="9" x2="15" y2="15"></line>
                                     </svg>
                                     Cancel
-                                </router-link>
-                                <button @click="showSuccessModal = true"
+                                </button>
+                                <button @click="handleSave"
                                     class="px-5 py-2.5 bg-[#847365] text-white rounded-xl text-sm font-medium hover:bg-[#736458] flex items-center gap-2 transition-colors shadow-sm cursor-pointer">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -532,10 +532,48 @@
                 <h3 class="text-[22px] font-bold text-gray-800 mb-2">Product updated successfully.</h3>
                 <p class="text-[15px] text-gray-500 mb-8">Carrara Marble has been updated successfully.</p>
 
-                <button @click="showSuccessModal = false; $router.push(`/products/${$route.params.id || 1}`)"
+                <button @click="closeSuccessModal"
                     class="w-[200px] py-3 bg-[#847365] text-white rounded-xl text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm cursor-pointer">
                     Done
                 </button>
+            </div>
+        </div>
+    </Teleport>
+
+    <!-- Unsaved Changes Modal -->
+    <Teleport to="body">
+        <div v-if="showUnsavedModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity"
+                @click="showUnsavedModal = false"></div>
+
+            <!-- Modal Content -->
+            <div
+                class="bg-white rounded-[20px] p-8 max-w-[440px] w-full relative z-10 flex flex-col items-center text-center shadow-2xl">
+                <!-- Warning Icon -->
+                <div class="w-16 h-16 rounded-full border-[3px] border-red-500 flex items-center justify-center mb-5">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="text-red-500"
+                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                </div>
+
+                <h3 class="text-[20px] font-bold text-gray-800 mb-2">Unsaved Changes</h3>
+                <p class="text-[15px] text-gray-500 mb-8 px-4">You have unsaved changes. Do you want to leave without
+                    saving?</p>
+
+                <div class="flex gap-4 w-full">
+                    <button @click="showUnsavedModal = false"
+                        class="flex-1 py-3 bg-white border border-gray-200 text-gray-800 rounded-xl text-[15px] font-medium hover:bg-gray-50 transition-colors cursor-pointer">
+                        Stay on Page
+                    </button>
+                    <button @click="confirmDiscard"
+                        class="flex-1 py-3 bg-[#847365] text-white rounded-xl text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm cursor-pointer">
+                        Discard Changes
+                    </button>
+                </div>
             </div>
         </div>
     </Teleport>
@@ -543,9 +581,58 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 
+const router = useRouter()
+const route = useRoute()
+
 const isSidebarOpen = ref(false)
 const showSuccessModal = ref(false)
+const showUnsavedModal = ref(false)
+
+// We'll mock "hasUnsavedChanges" to true to demonstrate the feature for the user immediately.
+// In a real app, this watches form fields or a pinia store.
+const hasUnsavedChanges = ref(true)
+let pendingNavigation = null
+
+// Guard route changes
+onBeforeRouteLeave((to, from, next) => {
+    if (hasUnsavedChanges.value && !showSuccessModal.value) {
+        pendingNavigation = next
+        showUnsavedModal.value = true
+    } else {
+        next()
+    }
+})
+
+const handleCancel = () => {
+    if (hasUnsavedChanges.value) {
+        showUnsavedModal.value = true
+    } else {
+        router.push(`/products/${route.params.id || 1}`)
+    }
+}
+
+const confirmDiscard = () => {
+    showUnsavedModal.value = false
+    hasUnsavedChanges.value = false // allow navigation
+    if (pendingNavigation) {
+        pendingNavigation()
+        pendingNavigation = null
+    } else {
+        router.push(`/products/${route.params.id || 1}`)
+    }
+}
+
+const handleSave = () => {
+    hasUnsavedChanges.value = false
+    showSuccessModal.value = true
+}
+
+const closeSuccessModal = () => {
+    showSuccessModal.value = false
+    router.push(`/products/${route.params.id || 1}`)
+}
 </script>
