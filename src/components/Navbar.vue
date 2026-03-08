@@ -179,15 +179,19 @@
                         </router-link>
                     </li>
                     <li>
-                        <a href="#"
-                            class="flex items-center space-x-3 px-4 py-2 text-[#64615F] hover:text-gray-900 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors">
-                            <svg class="w-5 h-5 flex-shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
+                        <router-link to="/branding" :class="[
+                            'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
+                            route.path.startsWith('/branding')
+                                ? 'bg-[#F1F1F1] text-black border-black'
+                                : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
+                        ]">
+                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/branding') ? 'text-black' : 'text-gray-400']"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                             </svg>
-                            <span class="text-[#64615F]">Branding</span>
-                        </a>
+                            <span>Branding</span>
+                        </router-link>
                     </li>
                     <li class="pt-2 border-t border-gray-100/50 mt-4">
                         <button @click.prevent="showLogoutModal = true"

@@ -64,6 +64,11 @@ const routes = [
     path: '/settings',
     name: 'settings',
     component: () => import('../views/Settings.vue')
+  },
+  {
+    path: '/branding',
+    name: 'branding',
+    component: () => import('../views/Branding.vue')
   }
 ]
 const router = createRouter({
