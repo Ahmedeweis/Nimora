@@ -178,7 +178,7 @@
                             <span>Settings</span>
                         </router-link>
                     </li>
-                    <li>
+                    <!-- <li>
                         <router-link to="/branding" :class="[
                             'flex items-center space-x-3 px-4 py-2 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
                             route.path.startsWith('/branding')
@@ -192,7 +192,7 @@
                             </svg>
                             <span>Branding</span>
                         </router-link>
-                    </li>
+                    </li> -->
                     <li class="pt-2 border-t border-gray-100/50 mt-4">
                         <button @click.prevent="showLogoutModal = true"
                             class="w-full flex items-center space-x-3 px-4 py-2 text-red-500 font-bold rounded-xl text-sm transition-colors">
