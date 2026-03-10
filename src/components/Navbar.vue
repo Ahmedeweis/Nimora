@@ -26,11 +26,11 @@
         <div class="flex-1 px-4 pb-6 space-y-6" style="padding-top: 10px; border-top: solid 3px #E9E9E8;">
             <!-- Main Dashboard -->
             <div>
-                <router-link to="/dashboard" :style="route.path === '/dashboard' ? 'background-color: #2A2421;' : ''"
+                <router-link to="/dashboard" 
                     :class="[
                         'flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors',
-                        route.path === '/dashboard'
-                            ? 'text-white'
+                        route.path === '/dashboard' || route.path === '/'
+                            ? 'bg-[#2A2421] text-white'
                             : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50'
                     ]">
                     <svg :class="['w-5 h-5 flex-shrink-0', route.path === '/dashboard' ? 'text-white' : 'text-gray-400']"
