@@ -21,6 +21,8 @@ module.exports = {
         'nuvica-gray': '#4A6581',
         'nuvica-bg-start': '#CBE0F2',
         'nuvica-bg-end': '#FFFFFF',
+        'brand-brown': '#8C7A6B',
+        'brand-dark-brown': '#2A2421',
       },
       animation: {
         'float-slow': 'float 6s ease-in-out infinite',
