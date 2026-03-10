@@ -42,10 +42,11 @@
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <input type="text" placeholder="Company Name" v-model="form.company_name"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                <input type="text" placeholder="Company Name" v-model="form.company_name" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.company_name ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.company_name" class="mt-1 text-xs text-red-500 ml-1">{{ errors.company_name
+                                }}</p>
                         </div>
 
                         <!-- Business Type -->
@@ -59,10 +60,11 @@
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <input type="text" placeholder="Business Type" v-model="form.business_type"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                <input type="text" placeholder="Business Type" v-model="form.business_type" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.business_type ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.business_type" class="mt-1 text-xs text-red-500 ml-1">{{
+                                errors.business_type }}</p>
                         </div>
 
                         <!-- Phone -->
@@ -75,10 +77,10 @@
                                             d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 004.546 4.546l.773-1.548a1 1 0 011.062-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                                     </svg>
                                 </div>
-                                <input type="tel" placeholder="Phone Number" v-model="form.phone"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                <input type="tel" placeholder="Phone Number" v-model="form.phone" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.phone ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.phone" class="mt-1 text-xs text-red-500 ml-1">{{ errors.phone }}</p>
                         </div>
 
                         <!-- Website -->
@@ -92,9 +94,10 @@
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <input type="url" placeholder="Website (Optional)" v-model="form.website"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400" />
+                                <input type="url" placeholder="Website (Optional)" v-model="form.website" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.website ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.website" class="mt-1 text-xs text-red-500 ml-1">{{ errors.website }}</p>
                         </div>
 
                         <div>
@@ -107,10 +110,10 @@
                                         <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                     </svg>
                                 </div>
-                                <input type="email" placeholder="Email" v-model="form.email"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                <input type="email" placeholder="Email" v-model="form.email" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.email ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.email" class="mt-1 text-xs text-red-500 ml-1">{{ errors.email }}</p>
                         </div>
 
                         <div>
@@ -123,10 +126,10 @@
                                             clip-rule="evenodd" />
                                     </svg>
                                 </div>
-                                <input type="password" placeholder="Password" v-model="form.password"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                <input type="password" placeholder="Password" v-model="form.password" :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.password ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.password" class="mt-1 text-xs text-red-500 ml-1">{{ errors.password }}</p>
                         </div>
 
                         <button type="submit" :disabled="isLoading"
@@ -204,8 +207,71 @@ const form = ref({
 })
 
 const isLoading = ref(false)
+const errors = ref({
+    email: '',
+    password: '',
+    company_name: '',
+    business_type: '',
+    phone: '',
+    website: ''
+})
+
+const validateForm = () => {
+    let isValid = true
+    errors.value = {
+        email: '',
+        password: '',
+        company_name: '',
+        business_type: '',
+        phone: '',
+        website: ''
+    }
+
+    if (!form.value.company_name) {
+        errors.value.company_name = 'Company name is required'
+        isValid = false
+    }
+
+    if (!form.value.business_type) {
+        errors.value.business_type = 'Business type is required'
+        isValid = false
+    }
+
+    if (!form.value.phone) {
+        errors.value.phone = 'Phone number is required'
+        isValid = false
+    } else if (!/^\+?[\d\s-]{8,}$/.test(form.value.phone)) {
+        errors.value.phone = 'Please enter a valid phone number'
+        isValid = false
+    }
+
+    if (form.value.website && !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/.test(form.value.website)) {
+        errors.value.website = 'Please enter a valid URL'
+        isValid = false
+    }
+
+    if (!form.value.email) {
+        errors.value.email = 'Email is required'
+        isValid = false
+    } else if (!/^\S+@\S+\.\S+$/.test(form.value.email)) {
+        errors.value.email = 'Please enter a valid email address'
+        isValid = false
+    }
+
+    if (!form.value.password) {
+        errors.value.password = 'Password is required'
+        isValid = false
+    } else if (form.value.password.length < 8) {
+        errors.value.password = 'Password must be at least 8 characters'
+        isValid = false
+    }
+
+    return isValid
+}
 
 const handleRegister = async () => {
+    if (!validateForm()) return
+
     isLoading.value = true
     try {
         await authStore.signup(form.value)

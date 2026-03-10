@@ -36,9 +36,10 @@
                                     </svg>
                                 </div>
                                 <input type="email" placeholder="Email" v-model="email"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                    :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400', 
+                                    errors.email ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.email" class="mt-1 text-xs text-red-500 ml-1">{{ errors.email }}</p>
                         </div>
 
                         <div>
@@ -52,9 +53,10 @@
                                     </svg>
                                 </div>
                                 <input type="password" placeholder="Password" v-model="password"
-                                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400"
-                                    required />
+                                    :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown focus:border-transparent transition text-gray-900 placeholder-gray-400',
+                                    errors.password ? 'border-red-500' : 'border-gray-100']" />
                             </div>
+                            <p v-if="errors.password" class="mt-1 text-xs text-red-500 ml-1">{{ errors.password }}</p>
                         </div>
 
                         <button type="submit" :disabled="isLoading"
@@ -129,8 +131,37 @@ const authStore = useAuthStore()
 const email = ref('')
 const password = ref('')
 const isLoading = ref(false)
+const errors = ref({
+    email: '',
+    password: ''
+})
+
+const validateForm = () => {
+    let isValid = true
+    errors.value = { email: '', password: '' }
+
+    if (!email.value) {
+        errors.value.email = 'Email is required'
+        isValid = false
+    } else if (!/^\S+@\S+\.\S+$/.test(email.value)) {
+        errors.value.email = 'Please enter a valid email address'
+        isValid = false
+    }
+
+    if (!password.value) {
+        errors.value.password = 'Password is required'
+        isValid = false
+    } else if (password.value.length < 6) {
+        errors.value.password = 'Password must be at least 6 characters'
+        isValid = false
+    }
+
+    return isValid
+}
 
 const handleLogin = async () => {
+    if (!validateForm()) return
+
     isLoading.value = true
     try {
         await authStore.login({
