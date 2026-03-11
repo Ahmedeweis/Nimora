@@ -84,6 +84,11 @@ const routes = [
     path: '/branding',
     name: 'branding',
     component: () => import('../views/Branding.vue')
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('../views/ProfileView.vue')
   }
 ]
 const router = createRouter({
@@ -102,4 +107,30 @@ const router = createRouter({
     return { top: 0, behavior: 'smooth' }
   }
 })
+
+// Authentication Guard
+router.beforeEach((to, from, next) => {
+  const isVercel = import.meta.env.PROD
+  const publicPages = ['/', '/login', '/register']
+  const authRequired = !publicPages.includes(to.path)
+  const loggedIn = localStorage.getItem('access_token')
+
+  // If on Vercel (Production), bypass login check
+  if (isVercel) {
+    return next()
+  }
+
+  // Local environment logic
+  if (authRequired && !loggedIn) {
+    return next('/login')
+  }
+
+  // If logged in and trying to access login page, redirect to dashboard
+  if (loggedIn && (to.path === '/login' || to.path === '/')) {
+    return next('/dashboard')
+  }
+
+  next()
+})
+
 export default router

@@ -47,13 +47,13 @@
                     </button>
 
                     <!-- User Profile -->
-                    <div class="flex items-center space-x-2">
+                    <router-link to="/profile" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                         <div
                             class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold text-sm">
                             M
                         </div>
                         <span class="text-sm text-gray-600 font-medium hidden sm:block">merchant@nimora.com</span>
-                    </div>
+                    </router-link>
 
                     <!-- Language indicator -->
                     <button
