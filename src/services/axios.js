@@ -8,12 +8,25 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
+    const userStr = localStorage.getItem('user');
+    
     if (token) {
-      console.log(`[Axios] Attaching token to: ${config.url}`);
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      console.warn(`[Axios] No token found for: ${config.url}`);
     }
+    
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        // Try to get tenant_id, fallback to merchant_id or id if not found
+        const tenantId = user.tenant_id || user.merchant_id || user.id;
+        if (tenantId) {
+          config.headers['X-Tenant-ID'] = tenantId;
+        }
+      } catch (e) {
+        console.error('[Axios] Failed to parse user for tenant ID', e);
+      }
+    }
+    
     return config;
   },
   (error) => Promise.reject(error)

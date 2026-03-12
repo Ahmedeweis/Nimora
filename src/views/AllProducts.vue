@@ -32,39 +32,7 @@
                         </router-link>
                     </div>
 
-                    <!-- Catalog Link Box -->
-                    <div
-                        class="mb-8 border border-gray-200 rounded-2xl bg-white p-4 flex flex-col sm:flex-row sm:items-center justify-between shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)]">
-                        <div class="flex items-start sm:items-center gap-3 mb-3 sm:mb-0">
-                            <div class="mt-0.5 sm:mt-0 text-gray-400">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                                    <polyline points="15 3 21 3 21 9"></polyline>
-                                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900 mb-0.5">Catalog Link</p>
-                                <p class="text-sm text-gray-500 truncate max-w-[200px] sm:max-w-none">
-                                    {{ catalogLink }}</p>
-                            </div>
-                        </div>
-                        <button @click="copyLink"
-                            class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors"
-                            :class="linkCopied ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'border-gray-200 text-gray-700 hover:bg-gray-50'">
-                            <svg v-if="!linkCopied" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                            <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12"></polyline>
-                            </svg>
-                            {{ linkCopied ? 'Copied!' : 'Copy' }}
-                        </button>
-                    </div>
+
 
                     <!-- Controls Toolbar -->
                     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
@@ -111,6 +79,18 @@
                                     ]">
                                     {{ filter }}
                                 </button>
+                                
+                                <!-- Category Badge -->
+                                <div v-if="selectedCategory" 
+                                    class="flex items-center gap-2 px-3 py-1.5 bg-[#847365]/10 border border-[#847365]/20 rounded-full text-[13px] font-medium text-[#847365] whitespace-nowrap">
+                                    <span>Category: {{ selectedCategory }}</span>
+                                    <button @click="clearCategoryFilter" class="hover:text-[#736458] transition-colors p-0.5">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -132,8 +112,8 @@
 
                     <!-- Products List View-->
                     <div v-if="currentView === 'list'" class="flex flex-col gap-3 mb-6">
-                        <router-link v-for="(product, index) in filteredProducts" :key="'list-' + index"
-                            :to="`/products/${index}`"
+                        <router-link v-for="product in paginatedProducts" :key="'list-' + product.id"
+                            :to="`/products/${product.id}`"
                             class="bg-white border border-gray-200 rounded-2xl p-4 flex items-center justify-between hover:border-gray-300 hover:shadow-sm transition-all group">
                             <div class="flex items-center gap-4">
                                 <div
@@ -167,11 +147,27 @@
                                         :class="getStatusDotClass(product.status)"></span>
                                     {{ product.status }}
                                 </div>
-                                <div class="text-gray-300 group-hover:text-gray-500 transition-colors">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
+                                <div class="flex items-center gap-2">
+                                    <button @click.prevent="handleDeleteProduct(product.id)"
+                                        class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path
+                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                            </path>
+                                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                                        </svg>
+                                    </button>
+                                    <div class="text-gray-300 group-hover:text-gray-500 transition-colors">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
                         </router-link>
@@ -180,8 +176,8 @@
                     <!-- Products Grid View -->
                     <div v-if="currentView === 'grid'"
                         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 mb-6">
-                        <router-link v-for="(product, index) in filteredProducts" :key="'grid-' + index"
-                            :to="`/products/${index}`"
+                        <router-link v-for="product in paginatedProducts" :key="'grid-' + product.id"
+                            :to="`/products/${product.id}`"
                             class="bg-white border border-gray-200 rounded-[20px] p-2 flex flex-col hover:border-gray-300 hover:shadow-md transition-all group">
                             <!-- Image Area -->
                             <div class="relative w-full aspect-square rounded-[14px] overflow-hidden mb-3 bg-gray-50">
@@ -197,17 +193,22 @@
                             </div>
 
                             <!-- Content Area -->
-                            <div class="flex flex-col flex-1 px-2 pb-2">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div>
-                                        <h3 class="text-[15px] font-semibold text-gray-900 mb-0.5">{{ product.name }}
+                            <div class="flex flex-col flex-1 px-2 pb-2 min-w-0">
+                                <div class="flex justify-between items-start mb-2 gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <h3 class="text-[15px] font-semibold text-gray-900 mb-0.5 truncate">{{
+                                            product.name }}
                                         </h3>
-                                        <p class="text-[13px] text-gray-500">{{ product.category }}</p>
+                                        <p class="text-[13px] text-gray-500 truncate">{{ product.category }}</p>
                                     </div>
-                                    <div class="flex flex-wrap gap-1.5 flex-shrink-0 ml-2">
-                                        <span v-for="tag in product.tags || ['Floor', 'Wall']" :key="tag"
-                                            class="px-2.5 py-1 bg-[#f7f7f7] text-gray-600 rounded-full text-[11px] font-medium">
+                                    <div class="flex flex-wrap gap-1.5 flex-shrink-0 justify-end max-w-[120px]">
+                                        <span v-for="tag in (product.tags || []).slice(0, 2)" :key="tag"
+                                            class="px-2.5 py-1 bg-[#f7f7f7] text-gray-600 rounded-full text-[11px] font-medium whitespace-nowrap">
                                             {{ tag }}
+                                        </span>
+                                        <span v-if="(product.tags || []).length > 2"
+                                            class="px-2.5 py-1 bg-[#f7f7f7] text-gray-400 rounded-full text-[11px] font-medium whitespace-nowrap">
+                                            +{{ (product.tags || []).length - 2 }}
                                         </span>
                                     </div>
                                 </div>
@@ -237,34 +238,63 @@
                 </div>
             </main>
         </div>
+
+        <DeleteModal :is-open="showDeleteModal" title="Delete Product?"
+            description="Are you sure you want to delete this product? This action cannot be undone."
+            :loading="isDeleting" @close="showDeleteModal = false" @confirm="confirmDelete" />
     </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useProductStore } from '../store/product'
+import { useSettingStore } from '../store/setting'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import PaginationComponent from '../components/pagnetion.vue'
+import DeleteModal from '../components/DeleteModal.vue'
+import { useToast } from 'vue-toastification'
 
-// Needed to construct image path imports in Vite
-import productImg1 from '../assets/imgs/product/1.webp'
-import productImg2 from '../assets/imgs/product/2.webp'
-import productImg3 from '../assets/imgs/product/3.webp'
-import productImg4 from '../assets/imgs/product/4.webp'
-import productImg5 from '../assets/imgs/product/5.webp'
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
 
+const productStore = useProductStore()
+const settingStore = useSettingStore()
 const isSidebarOpen = ref(false)
 const currentView = ref('grid')
 const activeFilter = ref('All')
-const currentPage = ref(1)
-const perPage = 5
+const selectedCategory = ref(route.query.category || null)
 
-const catalogLink = 'https://nimora-studio.lovable.app/catalog/nimora-studio'
+// Watch for route query changes (e.g. when navigating from categories)
+watch(() => route.query.category, (newCat) => {
+    selectedCategory.value = newCat || null
+})
+
+const clearCategoryFilter = () => {
+    selectedCategory.value = null
+    const query = { ...route.query }
+    delete query.category
+    router.replace({ query })
+}
+
+const currentPage = ref(1)
+const perPage = 10
+const showDeleteModal = ref(false)
+const productIdToDelete = ref(null)
+const isDeleting = ref(false)
+
+const catalogLink = computed(() => {
+    const origin = window.location.origin
+    const slug = settingStore.marketplaceVisibility?.slug || 'nimora-studio'
+    return `${origin}/catalog/${slug}`
+})
 const linkCopied = ref(false)
 
 const copyLink = async () => {
     try {
-        await navigator.clipboard.writeText(catalogLink)
+        await navigator.clipboard.writeText(catalogLink.value)
         linkCopied.value = true
         setTimeout(() => {
             linkCopied.value = false
@@ -274,57 +304,84 @@ const copyLink = async () => {
     }
 }
 
-const products = ref([
-    {
-        name: 'Carrara Marble',
-        category: 'Marble • Natural Stone',
-        image: productImg1,
-        views: '50',
-        price: '250',
-        status: 'Published',
-        tags: ['Floor', 'Wall']
-    },
-    {
-        name: 'Geometric Ceramic Tile',
-        category: 'Ceramic',
-        image: productImg2,
-        views: '125',
-        price: '250',
-        status: 'Draft',
-        tags: ['Floor']
-    },
-    {
-        name: 'Herringbone Oak Parquet',
-        category: 'Wood',
-        image: productImg3,
-        views: '200',
-        price: '250',
-        status: 'AI Preview',
-        tags: ['Floor', 'Wall']
-    },
-    {
-        name: 'Herringbone Oak Parquet',
-        category: 'Wood',
-        image: productImg4,
-        views: '200',
-        price: '250',
-        status: 'AI Preview',
-        tags: ['Wall']
-    },
-    {
-        name: 'Herringbone Oak Parquet',
-        category: 'Wood',
-        image: productImg5,
-        views: '200',
-        price: '250',
-        status: 'AI Preview',
-        tags: ['Floor', 'Wall']
+onMounted(async () => {
+    try {
+        await Promise.all([
+            productStore.fetchProducts({ skip: 0, limit: 1000 }),
+            settingStore.fetchMarketplaceVisibility()
+        ])
+    } catch (error) {
+        console.error('Failed to load data:', error)
     }
-])
+})
+
+const handleDeleteProduct = (productId) => {
+    productIdToDelete.value = productId
+    showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+    if (!productIdToDelete.value) return
+    isDeleting.value = true
+    try {
+        await productStore.deleteProduct(productIdToDelete.value)
+        toast.success('Product deleted successfully')
+        showDeleteModal.value = false
+        productIdToDelete.value = null
+    } catch (error) {
+        toast.error(error.message || 'Failed to delete product')
+    } finally {
+        isDeleting.value = false
+    }
+}
+
+const mappedProducts = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    return productStore.products.map(product => {
+        let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+        if (product.images?.[0]?.url) {
+            imageUrl = product.images[0].url
+            if (imageUrl.startsWith('/')) {
+                imageUrl = `${apiUrl}${imageUrl}`
+            }
+        }
+
+        const rawCategory = product.metadata?.category || 'Uncategorized'
+
+        return {
+            id: product.id,
+            name: product.name,
+            rawCategory: rawCategory,
+            category: rawCategory + (product.metadata?.classification ? ` • ${product.metadata.classification}` : ''),
+            image: imageUrl,
+            views: product.metadata?.views || '0',
+            price: product.price?.amount || '0',
+            status: product.status || product.metadata?.status || 'Published',
+            tags: product.applications?.map(app => app.name) || []
+        }
+    })
+})
 
 const filteredProducts = computed(() => {
-    if (activeFilter.value === 'All') return products.value;
-    return products.value.filter(p => p.status === activeFilter.value);
+    let items = mappedProducts.value
+
+    // Status Filter
+    if (activeFilter.value !== 'All') {
+        items = items.filter(p => p.status === activeFilter.value)
+    }
+
+    // Category Filter
+    if (selectedCategory.value) {
+        items = items.filter(p => p.rawCategory === selectedCategory.value)
+    }
+
+    return items
+})
+
+const paginatedProducts = computed(() => {
+    const start = (currentPage.value - 1) * perPage
+    const end = start + perPage
+    return filteredProducts.value.slice(start, end)
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredProducts.value.length / perPage)))

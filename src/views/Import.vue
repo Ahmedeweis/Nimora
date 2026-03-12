@@ -21,7 +21,7 @@
                             <p class="text-[14px] text-gray-500">Update prices and inventory quantities in bulk using
                                 CSV files</p>
                         </div>
-                        <button
+                        <button @click="handleDownloadTemplate"
                             class="flex items-center gap-2 px-5 py-2.5 bg-[#847365] hover:bg-[#736458] text-white rounded-xl text-[14px] font-medium transition-colors shadow-sm whitespace-nowrap">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -138,9 +138,14 @@
                             </div>
 
                             <!-- Action -->
-                            <button @click="showSuccessModal = true"
-                                class="w-full py-4 bg-[#847365] hover:bg-[#736458] text-white rounded-[10px] text-[15px] font-medium transition-colors shadow-sm tracking-wide">
-                                Process Import
+                            <!-- Action -->
+                            <button @click="handleProcessImport" :disabled="isProcessing"
+                                class="w-full py-4 bg-[#847365] hover:bg-[#736458] disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-[10px] text-[15px] font-medium transition-colors shadow-sm tracking-wide flex items-center justify-center gap-2">
+                                <svg v-if="isProcessing" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                {{ isProcessing ? 'Processing...' : 'Process Import' }}
                             </button>
                         </div>
 
@@ -221,85 +226,38 @@
             </main>
         </div>
 
-        <!-- Success Modal -->
-        <div v-if="showSuccessModal" class="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <!-- Backdrop -->
-            <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
-                @click="showSuccessModal = false"></div>
-
-            <!-- Modal Content -->
-            <div
-                class="bg-white rounded-[20px] w-full max-w-[600px] pt-12 pb-10 px-8 relative z-10 flex flex-col items-center text-center shadow-xl">
-                <!-- Icon -->
-                <div
-                    class="w-[72px] h-[72px] rounded-full border-[4px] border-[#847365] flex items-center justify-center mb-6">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-linejoin="round" class="text-[#847365] ml-1 mt-1">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                </div>
-
-                <h3 class="text-[20px] font-bold text-[#64615F] mb-3 tracking-tight">Import completed successfully.
-                    Products have been updated.</h3>
-                <p class="text-[15px] text-gray-500 mb-8 tracking-tight">Import completed. 28 products updated, 2
-                    skipped.</p>
-
-                <button @click="showSuccessModal = false"
-                    class="w-[200px] py-[12px] bg-[#847365] text-white rounded-xl text-[14px] font-medium hover:bg-[#736458] transition-colors cursor-pointer tracking-wide">
-                    Done
-                </button>
-            </div>
-        </div>
-
-        <!-- Error Modal -->
-        <div v-if="showErrorModal" class="fixed inset-0 z-50 flex items-center justify-center px-4">
-            <!-- Backdrop -->
-            <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" @click="showErrorModal = false">
-            </div>
-
-            <!-- Modal Content -->
-            <div
-                class="bg-white rounded-[20px] w-full max-w-[500px] pt-12 pb-10 px-8 relative z-10 flex flex-col items-center text-center shadow-xl">
-                <!-- Icon -->
-                <div
-                    class="w-[72px] h-[72px] rounded-full border-[4px] border-[#ef4444] flex items-center justify-center mb-6">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-linejoin="round" class="text-[#ef4444]">
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                </div>
-
-                <h3 class="text-[20px] font-bold text-[#64615F] mb-3 tracking-tight">Some rows could not be processed.
-                </h3>
-                <p class="text-[15px] text-gray-500 mb-8 tracking-tight">Please review the error report and try again.
-                </p>
-
-                <div class="flex gap-4 w-full">
-                    <button @click="showErrorModal = false"
-                        class="flex-1 py-[12px] bg-white border border-gray-200 text-gray-800 rounded-xl text-[14px] font-medium hover:bg-gray-50 transition-colors cursor-pointer tracking-wide">
-                        Try Again
-                    </button>
-                    <button @click="showErrorModal = false"
-                        class="flex-1 py-[12px] bg-[#847365] text-white rounded-xl text-[14px] font-medium hover:bg-[#736458] transition-colors cursor-pointer tracking-wide shadow-sm">
-                        Discard Changes
-                    </button>
-                </div>
-            </div>
-        </div>
 
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 
+const toast = useToast()
 const isSidebarOpen = ref(false)
 const importType = ref('both')
-const showSuccessModal = ref(false)
-const showErrorModal = ref(false)
+const isProcessing = ref(false)
+
+const handleDownloadTemplate = () => {
+    toast.info('Preparing CSV template...')
+    setTimeout(() => {
+        toast.success('Template downloaded successfully')
+    }, 1000)
+}
+
+const handleProcessImport = () => {
+    isProcessing.value = true
+    toast.info('Processing CSV file and updating records...')
+    
+    // Simulate processing
+    setTimeout(() => {
+        isProcessing.value = false
+        toast.success('Import completed. 28 products updated, 2 skipped.')
+    }, 3000)
+}
 </script>
 
 <style scoped>

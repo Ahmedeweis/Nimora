@@ -495,7 +495,7 @@
 
                         </section>
 
-                        <button @click="handleSave"
+                        <button @click="handleSave" :disabled="settingStore.loading"
                             class="w-full flex items-center justify-center gap-2 py-3 bg-[#8C7A6B] hover:bg-[#7a6b5d] text-white rounded-[10px] text-[15px] font-semibold transition-colors shadow-sm">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -719,12 +719,96 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
+import Pagnetion from '../components/pagnetion.vue'
+import { useSettingStore } from '../store/setting'
+import { useAuthStore } from '../store/auth'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
+const settingStore = useSettingStore()
+const authStore = useAuthStore()
 const isSidebarOpen = ref(false)
 const showSuccessModal = ref(false)
+
+const settings = ref({
+    storeName: '',
+    storeUrl: '',
+    tagline: '',
+    country: '',
+    city: '',
+    accessType: 'public', // 'public', 'private', 'specific'
+    priceVisibility: 'hide', // 'hide', 'approved'
+    marketplaceListing: true,
+    defaultView: 'catalog', // 'catalog', 'grid'
+    showProductCode: false
+})
+
+onMounted(async () => {
+    try {
+        const [visibilityData, profile] = await Promise.all([
+            settingStore.fetchCatalogVisibility(),
+            authStore.getProfile()
+        ])
+
+        if (visibilityData) {
+            settings.value.accessType = visibilityData.catalog_visibility
+        }
+
+        if (profile) {
+            settings.value.storeName = profile.company_name || ''
+            settings.value.country = profile.country || ''
+            settings.value.city = profile.city || ''
+            // Assuming other fields might be in metadata
+            if (profile.metadata) {
+                settings.value.tagline = profile.metadata.tagline || ''
+                settings.value.storeUrl = profile.metadata.store_url || ''
+                settings.value.priceVisibility = profile.metadata.price_visibility || 'hide'
+                settings.value.marketplaceListing = profile.metadata.marketplace_listing !== false
+                settings.value.defaultView = profile.metadata.default_view || 'catalog'
+                settings.value.showProductCode = !!profile.metadata.show_product_code
+            }
+        }
+    } catch (error) {
+        console.error('Failed to fetch settings:', error)
+        toast.error('Failed to load store settings')
+    }
+})
+
+const handleSave = async () => {
+    try {
+        // Save visibility to specific endpoint
+        const visibilityPromise = settingStore.updateCatalogVisibility(settings.value.accessType)
+
+        // Save other info to profile
+        const profilePayload = {
+            ...authStore.user,
+            company_name: settings.value.storeName,
+            country: settings.value.country,
+            city: settings.value.city,
+            metadata: {
+                ...authStore.user?.metadata,
+                tagline: settings.value.tagline,
+                store_url: settings.value.storeUrl,
+                price_visibility: settings.value.priceVisibility,
+                marketplace_listing: settings.value.marketplaceListing,
+                default_view: settings.value.defaultView,
+                show_product_code: settings.value.showProductCode
+            }
+        }
+        const profilePromise = authStore.updateProfile(profilePayload)
+
+        await Promise.all([visibilityPromise, profilePromise])
+        
+        toast.success('Settings saved successfully')
+        showSuccessModal.value = true
+    } catch (error) {
+        toast.error(error.message || 'Failed to save settings')
+    }
+}
+
 
 // Catalog Selection State
 const showCatalogModal = ref(false)
@@ -829,24 +913,6 @@ const getProductSelectionLabel = (catalog) => {
     if (selectedCount === catalog.productCount && catalog.productCount > 0) return 'All Products'
     if (selectedCount > 0) return 'Custom Selection'
     return 'No Products'
-}
-
-const settings = ref({
-    storeName: '',
-    storeUrl: '',
-    tagline: '',
-    country: '',
-    city: '',
-    accessType: 'public', // 'public', 'private', 'specific'
-    priceVisibility: 'hide', // 'hide', 'approved'
-    marketplaceListing: true,
-    defaultView: 'catalog', // 'catalog', 'grid'
-    showProductCode: false
-})
-
-const handleSave = () => {
-    // Logic to save settings
-    showSuccessModal.value = true
 }
 </script>
 

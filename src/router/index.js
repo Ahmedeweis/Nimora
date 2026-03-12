@@ -11,6 +11,11 @@ const routes = [
     component: () => import('../views/HomeView.vue')
   },
   {
+    path: '/marketplace',
+    name: 'marketplace',
+    component: () => import('../views/MarketplaceView.vue')
+  },
+  {
     path: '/login',
     name: 'login-alias',
     component: () => import('../views/Auth/LoginView.vue')

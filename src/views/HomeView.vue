@@ -40,7 +40,7 @@
                 </div>
               </div>
               <div class="mb-1">
-                <span class="text-2xl font-bold text-gray-900">8</span>
+                <span class="text-2xl font-bold text-gray-900">{{ productStore.products.length }}</span>
               </div>
               <div class="text-xs text-gray-500 font-medium">
                 Total Products <span class="px-1 text-gray-300">•</span> this month
@@ -119,7 +119,7 @@
                 </div>
               </div>
               <div class="mb-1">
-                <span class="text-2xl font-bold text-gray-900">100</span>
+                <span class="text-2xl font-bold text-gray-900">0</span>
               </div>
               <div class="text-xs text-gray-500 font-medium">
                 Active Customers <span class="px-1 text-gray-300">•</span> approved
@@ -130,52 +130,52 @@
             <h2 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
             <div class="grid grid-cols-2 lg:flex lg:flex-wrap items-center gap-2 sm:gap-3">
               <router-link to="/add-product"
-                class="hover-one flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-[#8C7A6B] hover:bg-[#7a6b5d] text-white px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
+                class=" flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 hovery px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
                 <span class="truncate">Add Product</span>
               </router-link>
 
-              <button
+              <router-link to="/inventory"
                 class="hover-two flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
                 <span class="truncate">Update Inventory</span>
-              </button>
+              </router-link>
 
-              <button
+              <router-link to="/permissions"
                 class="hover-two flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span class="truncate">Permissions</span>
-              </button>
+              </router-link>
 
-              <button
+              <router-link to="/products"
                 class=" hover-two flex items-center w-full lg:w-auto justify-center lg:justify-start space-x-2 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 px-3 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-colors">
                 <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <span class="truncate">View Catalog</span>
-              </button>
+              </router-link>
             </div>
           </div>
           <!-- Header -->
           <div class="flex justify-between items-center mb-4">
 
             <h2 class="text-lg font-bold text-gray-900">Recent Products</h2>
-            <a href="#"
+            <router-link to="/products"
               class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center transition-colors">
               View all
               <svg class="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-            </a>
+            </router-link>
           </div>
 
           <!-- Container -->
@@ -183,24 +183,30 @@
             class="bg-white border border-gray-200 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
             <div class="flex flex-col">
 
-              <div v-for="(product, index) in products" :key="product.id" :class="['flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer',
-                index !== products.length - 1 ? 'border-b border-gray-100' : '']">
+              <div v-if="productStore.loading" class="p-8 text-center text-gray-500">
+                Loading products...
+              </div>
+              <div v-else-if="recentProducts.length === 0" class="p-8 text-center text-gray-500">
+                No products found. Start by adding one!
+              </div>
+              <div v-else v-for="(product, index) in recentProducts" :key="product.id" :class="['flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer',
+                index !== recentProducts.length - 1 ? 'border-b border-gray-100' : '']">
 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4 min-w-0 flex-1 mr-4">
                   <div
                     class="w-12 h-12 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex-shrink-0 relative">
-                    <img :src="getImageUrl(product.img)" :alt="product.name" class="w-full h-full object-cover" />
+                    <img :src="getImageUrl(product)" :alt="product.name" class="w-full h-full object-cover" />
                   </div>
-                  <div>
-                    <h3 class="text-sm font-medium text-gray-900">{{ product.name }}</h3>
-                    <p class="text-xs text-gray-500">{{ product.category }}</p>
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-medium text-gray-900 truncate">{{ product.name }}</h3>
+                    <p class="text-xs text-gray-500 truncate">{{ product.metadata?.category || 'General' }}</p>
                   </div>
                 </div>
 
                 <div
-                  :class="['flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-medium border', product.statusClass]">
-                  <span :class="['w-1.5 h-1.5 rounded-full mr-1.5', product.dotClass]"></span>
-                  {{ product.status }}
+                  :class="['flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-medium border', getStatusClass(product)]">
+                  <span :class="['w-1.5 h-1.5 rounded-full mr-1.5', getDotClass(product)]"></span>
+                  {{ getStatusLabel(product) }}
                 </div>
 
               </div>
@@ -215,25 +221,54 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useToast } from 'vue-toastification'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
-import PaginationComponent from '../components/pagnetion.vue'
+import { useProductStore } from '../store/product'
+import { usePermissionStore } from '../store/permission'
+
+const toast = useToast()
 
 const isSidebarOpen = ref(false)
+const productStore = useProductStore()
+const permissionStore = usePermissionStore()
 
-// مصفوفة المنتجات
-const products = ref([
-  { id: 1, name: 'Carrara Marble', category: 'Marble', status: 'Published', statusClass: 'bg-emerald-50 text-emerald-600 border-emerald-100/50', dotClass: 'bg-emerald-500', img: '1.webp' },
-  { id: 2, name: 'Geometric Ceramic Tile', category: 'Ceramic', status: 'Draft', statusClass: 'bg-slate-100 text-slate-600 border-slate-200/50', dotClass: 'bg-slate-400', img: '2.webp' },
-  { id: 3, name: 'Carrara Marble', category: 'Marble', status: 'Published', statusClass: 'bg-emerald-50 text-emerald-600 border-emerald-100/50', dotClass: 'bg-emerald-500', img: '3.webp' },
-  { id: 4, name: 'Geometric Ceramic Tile', category: 'Ceramic', status: 'Draft', statusClass: 'bg-slate-100 text-slate-600 border-slate-200/50', dotClass: 'bg-slate-400', img: '4.webp' },
-  { id: 5, name: 'Herringbone Oak Parquet', category: 'Parquet', status: 'AI Preview', statusClass: 'bg-orange-50 text-orange-600 border-orange-100/50', dotClass: 'bg-orange-500', img: '5.webp' },
-])
+onMounted(async () => {
+  try {
+    await productStore.fetchProducts({ skip: 0, limit: 100 })
+  } catch (error) {
+    toast.error('Failed to load dashboard data. Please refresh.')
+  }
+})
 
-// function عشان نجيب مسار الصورة الصح في Vite
-const getImageUrl = (name) => {
-  return new URL(`../assets/imgs/product/${name}`, import.meta.url).href
+const recentProducts = computed(() => {
+  return productStore.products.slice(0, 5)
+})
+
+const getImageUrl = (product) => {
+  const url = product.images?.find(img => img.is_primary)?.url || product.images?.[0]?.url
+  if (!url) return 'https://via.placeholder.com/150'
+  if (url.startsWith('http')) return url
+  return `${import.meta.env.VITE_API_URL}${url}`
+}
+
+const getStatusLabel = (product) => {
+  if (product.marketplace_visible) return 'Published'
+  if (product.customer_visible) return 'Private'
+  return 'Draft'
+}
+
+const getStatusClass = (product) => {
+  if (product.marketplace_visible) return 'bg-emerald-50 text-emerald-600 border-emerald-100/50'
+  if (product.customer_visible) return 'bg-blue-50 text-blue-600 border-blue-100/50'
+  return 'bg-slate-100 text-slate-600 border-slate-200/50'
+}
+
+const getDotClass = (product) => {
+  if (product.marketplace_visible) return 'bg-emerald-500'
+  if (product.customer_visible) return 'bg-blue-500'
+  return 'bg-slate-400'
 }
 </script>
 
@@ -270,5 +305,16 @@ const getImageUrl = (name) => {
 .hover-two:hover {
   background-color: #8C7A6B;
   color: white;
+}
+
+.hovery {
+  background-color: #8C7A6B;
+  color: white;
+  transition: 0.5s;
+}
+
+.hovery:hover {
+  background-color: white;
+  color: black;
 }
 </style>

@@ -84,8 +84,47 @@
                                         <input type="url" placeholder="Website (Optional)" v-model="form.website"
                                             :class="['w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400', errors.website ? 'border-red-500' : 'border-gray-100']" />
                                     </div>
-                                    <p v-if="errors.website" class="text-[10px] text-red-500 ml-1">{{ errors.website }}
-                                    </p>
+                                    <p v-if="errors.website" class="text-[10px] text-red-500 ml-1">{{ errors.website }}</p>
+                                </div>
+
+                                <!-- Tax ID -->
+                                <div class="space-y-1">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                        </div>
+                                        <input type="text" placeholder="Tax ID" v-model="form.tax_id"
+                                            class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Address Section -->
+                            <div class="space-y-4 pt-2">
+                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Business Address</p>
+                                
+                                <div class="space-y-1">
+                                    <input type="text" placeholder="Street Address" v-model="form.address"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <input type="text" placeholder="City" v-model="form.city"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
+                                    <input type="text" placeholder="State/Province" v-model="form.state"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <input type="text" placeholder="Country" v-model="form.country"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
+                                    <input type="text" placeholder="Postal Code" v-model="form.postal_code"
+                                        class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-brown transition text-gray-900 placeholder-gray-400" />
                                 </div>
                             </div>
 

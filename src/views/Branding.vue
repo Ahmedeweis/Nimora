@@ -314,9 +314,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
+import { useToast } from 'vue-toastification'
+import { useAuthStore } from '../store/auth'
+
+const toast = useToast()
+const authStore = useAuthStore()
 
 const isSidebarOpen = ref(false)
 const showSuccessModal = ref(false)
@@ -346,11 +351,44 @@ const applyPreset = (preset) => {
     branding.value.dark = preset.dark
 }
 
-const handleSave = () => {
-    // Logic to save branding settings
-    console.log('Saving branding:', branding.value)
-    showSuccessModal.value = true
+const handleSave = async () => {
+    try {
+        // Save branding to profile metadata
+        const updatedProfile = {
+            ...authStore.user,
+            metadata: {
+                ...authStore.user?.metadata,
+                branding: branding.value
+            }
+        }
+        await authStore.updateProfile(updatedProfile)
+        toast.success('Branding updated successfully!')
+        showSuccessModal.value = true
+    } catch (error) {
+        toast.error('Failed to update branding')
+        console.error('Save branding error:', error)
+    }
 }
+
+onMounted(async () => {
+    try {
+        const profile = await authStore.getProfile()
+        if (profile?.metadata?.branding) {
+            branding.value = { ...profile.metadata.branding }
+            // Try to find matching preset
+            const preset = colorPresets.find(p => 
+                p.primary1 === branding.value.primary1 && 
+                p.primary2 === branding.value.primary2 && 
+                p.dark === branding.value.dark
+            )
+            if (preset) selectedPreset.value = preset.name
+            else selectedPreset.value = 'Custom'
+        }
+    } catch (error) {
+        console.error('Failed to fetch profile for branding:', error)
+    }
+})
+
 </script>
 
 <style scoped>

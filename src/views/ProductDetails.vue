@@ -24,9 +24,9 @@
                                     <polyline points="12 19 5 12 12 5"></polyline>
                                 </svg>
                             </router-link>
-                            <div>
-                                <h1 class="text-[26px] font-bold text-gray-900 mb-0.5 tracking-tight"
-                                    style="margin: 0 0;">Product Management</h1>
+                            <div class="min-w-0">
+                                <h1 class="text-[26px] font-bold text-gray-900 mb-0.5 tracking-tight truncate"
+                                    style="margin: 0 0;">{{ product?.name || 'Loading...' }}</h1>
                                 <p class="text-gray-500 text-[14px]">Manage your product catalog</p>
                             </div>
                         </div>
@@ -69,7 +69,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-sm font-bold text-gray-900 mb-0.5">Catalog Link</p>
+                                <p class="text-sm font-bold text-gray-900 mb-0.5">Product Link</p>
                                 <p class="text-sm text-gray-500 truncate max-w-[200px] sm:max-w-none">
                                     {{ catalogLink }}</p>
                             </div>
@@ -98,41 +98,77 @@
 
                             <!-- Hero Image & Basic Info Card -->
                             <div class="bg-white border border-gray-200 rounded-3xl p-4 shadow-sm">
-                                <!-- Main Image Gallery -->
-                                <div class="relative w-full h-[320px] rounded-2xl overflow-hidden mb-5 bg-[#F9F9F9]">
-                                    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
-                                        alt="Carrara Marble"
-                                        class="w-full h-full object-cover mix-blend-multiply opacity-50" />
+                                <!-- Main Image Gallery (Carousel) -->
+                                <div
+                                    class="relative w-full h-[320px] rounded-2xl overflow-hidden mb-5 bg-[#F9F9F9] group">
+                                    <div v-if="product?.images?.length > 1"
+                                        class="absolute inset-0 flex transition-transform duration-500 ease-in-out"
+                                        :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
+                                        <div v-for="(img, idx) in product.images" :key="idx"
+                                            class="w-full h-full flex-shrink-0">
+                                            <img :src="getImageUrl(img.url)"
+                                                :alt="`${product?.name} - Image ${idx + 1}`"
+                                                class="w-full h-full object-cover" />
+                                        </div>
+                                    </div>
+                                    <img v-else :src="productImage" :alt="product?.name"
+                                        class="w-full h-full object-cover" />
 
                                     <!-- Status Badge -->
                                     <div
-                                        class="absolute top-4 right-4 flex items-center justify-center px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[13px] font-medium text-emerald-500 shadow-sm">
+                                        class="absolute top-4 left-4 flex items-center justify-center px-3 py-1.5 bg-white/90 backdrop-blur-md rounded-full text-[13px] font-medium text-emerald-500 shadow-sm z-10">
                                         <span class="w-1.5 h-1.5 rounded-full mr-2 bg-emerald-500"></span>
-                                        Published
+                                        {{ product?.marketplace_visible ? 'Published' : 'Private' }}
                                     </div>
 
-                                    <!-- Dots & AR Icon -->
-                                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
-                                        <div class="w-2 h-2 rounded-full bg-orange-500"></div>
-                                        <div class="w-2 h-2 rounded-full bg-gray-300"></div>
-                                        <div class="w-2 h-2 rounded-full bg-gray-300"></div>
-                                    </div>
-                                    <button
-                                        class="absolute cursor-pointer bottom-4 right-4 w-8 h-8 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-gray-600 shadow-sm hover:bg-white transition-colors">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    <!-- View Full Size Button -->
+                                    <button @click="showLightbox = true"
+                                        class="absolute bottom-4 right-4 flex items-center justify-center w-10 h-10 bg-white/90 backdrop-blur-md rounded-full text-gray-700 hover:text-orange-500 shadow-sm z-10 transition-colors cursor-pointer group-hover:opacity-100">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                             <circle cx="12" cy="12" r="3"></circle>
                                         </svg>
                                     </button>
+
+                                    <!-- Slider Controls -->
+                                    <template v-if="product?.images?.length > 1">
+                                        <button @click="prevImage"
+                                            class="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 text-gray-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-sm z-10">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <polyline points="15 18 9 12 15 6"></polyline>
+                                            </svg>
+                                        </button>
+                                        <button @click="nextImage"
+                                            class="absolute right-3 cursor-pointer top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/80 text-gray-800 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-sm z-10">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </button>
+
+                                        <!-- Dots -->
+                                        <div
+                                            class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10 bg-white/90 px-3 py-2 rounded-full backdrop-blur-md shadow-sm">
+                                            <button v-for="(_, idx) in product.images" :key="idx"
+                                                @click="currentImageIndex = idx"
+                                                class="w-2 h-2 rounded-full transition-all cursor-pointer"
+                                                :class="currentImageIndex === idx ? 'bg-orange-500 w-5' : 'bg-gray-300 hover:bg-gray-400'"></button>
+                                        </div>
+                                    </template>
                                 </div>
 
                                 <!-- Product Title Area -->
                                 <div class="px-2 mb-5">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <h2 class="text-[22px] font-bold text-gray-900">Carrara Marble</h2>
-                                        <span class="text-orange-500 font-medium text-[15px]">Premium</span>
+                                    <div class="flex justify-between items-center mb-4 min-w-0 gap-4">
+                                        <h2 class="text-[22px] font-bold text-gray-900 truncate">{{ product?.name }}
+                                        </h2>
+                                        <span class="text-orange-500 font-medium text-[15px]">{{
+                                            product?.metadata?.classification || 'Premium' }}</span>
                                     </div>
 
                                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 flex-wrap">
@@ -140,10 +176,11 @@
                                         <div class="bg-[#F8F9FA] rounded-[14px] p-3 flex items-center gap-3">
                                             <div
                                                 class="w-8 h-8 rounded-full bg-[#EAEAEA] flex items-center justify-center text-gray-500 font-medium">
-                                                $</div>
+                                                {{ product?.price?.currency === 'EGP' ? '£' : '$' }}</div>
                                             <div>
                                                 <p class="text-[11px] text-gray-500 font-medium">Price</p>
-                                                <p class="text-sm font-bold text-gray-900">250$</p>
+                                                <p class="text-sm font-bold text-gray-900">{{ product?.price?.amount ||
+                                                    '0' }} {{ product?.price?.currency }}</p>
                                             </div>
                                         </div>
                                         <!-- Category -->
@@ -158,9 +195,10 @@
                                                     <polyline points="2 12 12 17 22 12"></polyline>
                                                 </svg>
                                             </div>
-                                            <div>
+                                            <div class="min-w-0">
                                                 <p class="text-[11px] text-gray-500 font-medium">Category</p>
-                                                <p class="text-sm font-bold text-gray-900">Marble</p>
+                                                <p class="text-sm font-bold text-gray-900 truncate">{{
+                                                    product?.metadata?.category || 'General' }}</p>
                                             </div>
                                         </div>
                                         <!-- Colors -->
@@ -181,7 +219,8 @@
                                             </div>
                                             <div>
                                                 <p class="text-[11px] text-gray-500 font-medium">Colors</p>
-                                                <p class="text-sm font-bold text-gray-900 truncate">White, Grey-v...</p>
+                                                <p class="text-sm font-bold text-gray-900 truncate">{{
+                                                    product?.metadata?.available_colors || 'Multi' }}</p>
                                             </div>
                                         </div>
                                         <!-- Sizes -->
@@ -200,18 +239,39 @@
                                             </div>
                                             <div>
                                                 <p class="text-[11px] text-gray-500 font-medium">Sizes</p>
-                                                <p class="text-sm font-bold text-gray-900">24x24</p>
+                                                <p class="text-sm font-bold text-gray-900">{{
+                                                    product?.metadata?.available_sizes || 'Standard' }}</p>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="flex gap-2 mt-4">
-                                        <span
-                                            class="px-4 py-1.5 bg-[#F8F9FA] border border-gray-100 text-gray-600 rounded-full text-[12px] font-medium">Floor</span>
-                                        <span
-                                            class="px-4 py-1.5 bg-[#F8F9FA] border border-gray-100 text-gray-600 rounded-full text-[12px] font-medium">Wall</span>
+                                    <div class="flex flex-wrap gap-2 mt-4">
+                                        <span v-for="app in product?.applications" :key="app.name"
+                                            class="px-4 py-1.5 border text-gray-600 rounded-full text-[12px] font-medium border-emerald-100 bg-emerald-50/30">
+                                            {{ app.name }}
+                                        </span>
                                     </div>
                                 </div>
+                            </div>
+
+                            <!-- Product Description -->
+                            <div class="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="text-gray-400">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                    <h3 class="text-[18px] font-bold text-gray-900">Product Description</h3>
+                                </div>
+                                <p
+                                    class="text-[15px] text-gray-600 leading-relaxed whitespace-pre-line break-words overflow-hidden">
+                                    {{ product?.description || 'No description available for this product.' }}
+                                </p>
                             </div>
 
                             <!-- Variants List -->
@@ -225,61 +285,64 @@
                                         </path>
                                         <line x1="7" y1="7" x2="7.01" y2="7"></line>
                                     </svg>
-                                    <h3 class="text-[18px] font-bold text-gray-900">Product Variants (3)</h3>
+                                    <h3 class="text-[18px] font-bold text-gray-900">Product Variants ({{
+                                        product?.metadata?.variant_details?.length || 0 }})</h3>
                                 </div>
 
                                 <div class="w-full overflow-x-auto no-scrollbar">
-                                    <table class="w-full text-left border-collapse min-w-[600px]">
+                                    <table class="w-full text-left border-collapse min-w-[750px]">
                                         <thead>
                                             <tr>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     Variant</th>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     SKU</th>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     Color</th>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     Size</th>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     Price</th>
                                                 <th
-                                                    class="py-3 px-2 border-b border-gray-100 text-[13px] font-medium text-gray-500 uppercase tracking-wider text-right pr-4">
+                                                    class="py-3 px-2 border-b border-gray-100 text-[12px] font-bold text-gray-400 uppercase tracking-wider">
                                                     Stock</th>
                                             </tr>
                                         </thead>
                                         <tbody class="text-[14px]">
-                                            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                                <td class="py-4 px-2 text-gray-900 font-medium">Polished 24x24</td>
-                                                <td class="py-4 px-2 text-gray-400 tracking-wide text-[13px]">CM-P-24
+                                            <tr v-for="(variant, index) in product?.metadata?.variant_details"
+                                                :key="index"
+                                                class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                                                <td class="py-4 px-2 text-gray-900 font-bold">{{
+                                                    product?.variants?.[index]?.name || `Variant
+                                                    ${index + 1}` }}</td>
+                                                <td class="py-4 px-2 text-gray-500 font-mono text-[13px]">{{
+                                                    product?.variants?.[index]?.sku || '-'
+                                                }}</td>
+                                                <td class="py-4 px-2 text-gray-600">
+                                                    {{ variant.color || '-' }}
                                                 </td>
-                                                <td class="py-4 px-2 text-gray-600">White</td>
-                                                <td class="py-4 px-2 text-gray-600 text-[13px]">24x24</td>
-                                                <td class="py-4 px-2 text-gray-900 font-bold">$45.99</td>
-                                                <td class="py-4 px-2 text-right pr-4 text-emerald-500 font-medium">150
+                                                <td class="py-4 px-2 text-gray-600">
+                                                    {{ variant.size || '-' }}
+                                                </td>
+                                                <td class="py-4 px-2 text-gray-900 font-bold">
+                                                    {{ variant.price ? `$${variant.price}` : '-' }}
+                                                </td>
+                                                <td class="py-4 px-2">
+                                                    <span
+                                                        :class="Number(variant.stock) > 0 ? 'text-emerald-600 bg-emerald-50' : 'text-red-500 bg-red-50'"
+                                                        class="px-2.5 py-1 rounded-full text-[12px] font-bold uppercase tracking-wider">
+                                                        {{ variant.stock || 0 }} in stock
+                                                    </span>
                                                 </td>
                                             </tr>
-                                            <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                                <td class="py-4 px-2 text-gray-900 font-medium">Polished 36x36</td>
-                                                <td class="py-4 px-2 text-gray-400 tracking-wide text-[13px]">CM-P-36
-                                                </td>
-                                                <td class="py-4 px-2 text-gray-600">White</td>
-                                                <td class="py-4 px-2 text-gray-600 text-[13px]">36x36</td>
-                                                <td class="py-4 px-2 text-gray-900 font-bold">$62.99</td>
-                                                <td class="py-4 px-2 text-right pr-4 text-red-500 font-medium">80</td>
-                                            </tr>
-                                            <tr class="hover:bg-gray-50/50 transition-colors">
-                                                <td class="py-4 px-2 text-gray-900 font-medium">Honed 24x24</td>
-                                                <td class="py-4 px-2 text-gray-400 tracking-wide text-[13px]">CM-H-24
-                                                </td>
-                                                <td class="py-4 px-2 text-gray-600">Grey-veined</td>
-                                                <td class="py-4 px-2 text-gray-600 text-[13px]">24x24</td>
-                                                <td class="py-4 px-2 text-gray-900 font-bold">$48.99</td>
-                                                <td class="py-4 px-2 text-right pr-4 text-emerald-500 font-medium">120
+                                            <tr v-if="!product?.metadata?.variant_details?.length">
+                                                <td colspan="6" class="py-12 text-center text-gray-400 italic">
+                                                    No variants available for this product
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -327,7 +390,7 @@
                                             </p>
                                         </div>
                                     </div>
-                                    <div @click="priceRequiresApproval = !priceRequiresApproval"
+                                    <div @click="togglePriceApproval"
                                         :class="priceRequiresApproval ? 'bg-[#8C7A6B]' : 'bg-gray-200'"
                                         class="w-11 h-6 rounded-full relative cursor-pointer transition-colors duration-200">
                                         <div :class="priceRequiresApproval ? 'translate-x-5' : 'translate-x-0'"
@@ -370,7 +433,7 @@
                                         <div class="flex items-center gap-4">
                                             <p class="text-[13px] text-gray-400 hidden sm:block">Approved {{ i === 3 ?
                                                 '2026-02-01' : '2026-01-15' }}</p>
-                                            <button
+                                            <button @click="handleRemoveUser"
                                                 class="w-8 h-8 cursor-pointer rounded-full bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -444,7 +507,8 @@
                                     <h4 class="text-sm font-bold text-gray-800 mb-2">AI Visualization Description</h4>
                                     <textarea
                                         class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:border-gray-300 focus:ring-1 focus:ring-gray-300 min-h-[80px] text-gray-700 bg-[#fbfbfb]"
-                                        placeholder="Describe the desired scene for AI visualization"></textarea>
+                                        placeholder="Describe the desired scene for AI visualization"
+                                        :value="product?.metadata?.ai_visualization_description"></textarea>
                                     <p class="text-[11px] text-gray-400 mt-2 flex gap-1 items-start leading-tight">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -544,42 +608,9 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <Teleport to="body">
-        <div v-if="showDeleteModal"
-            class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-            <div class="bg-white rounded-[20px] p-6 sm:p-8 w-full max-w-[450px] shadow-2xl text-center transform transition-all"
-                :class="showDeleteModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'">
-                <!-- Icon -->
-                <div class="mb-5 flex justify-center">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                    </svg>
-                </div>
-
-                <h3 class="text-xl font-bold text-gray-700 mb-3">Delete Product ?</h3>
-                <p class="text-[14px] text-gray-500 mb-8 leading-relaxed font-medium">
-                    Are you sure you want to delete this product? This action cannot be undone and all associated
-                    variants
-                    and data will be permanently removed.
-                </p>
-
-                <div class="flex gap-3">
-                    <button @click="showDeleteModal = false"
-                        class="flex-1 py-3 cursor-pointer border border-gray-200 text-gray-800 rounded-xl font-medium hover:bg-gray-50 transition-colors">
-                        Cancel
-                    </button>
-                    <button @click="showDeleteModal = false"
-                        class="flex-1 cursor-pointer py-3 bg-[#f24141] text-white rounded-xl font-medium hover:bg-red-600 transition-colors shadow-sm">
-                        Delete
-                    </button>
-                </div>
-            </div>
-        </div>
-    </Teleport>
+    <DeleteModal :is-open="showDeleteModal" title="Delete Product?"
+        description="Are you sure you want to delete this product? This action cannot be undone and all associated variants and data will be permanently removed."
+        :loading="isDeleting" @close="showDeleteModal = false" @confirm="handleDelete" />
 
     <!-- Add User Modal -->
     <div v-show="showAddUserModal"
@@ -605,7 +636,7 @@
                     class="flex-1 py-3 border cursor-pointer border-gray-200 text-gray-800 rounded-xl text-[15px] font-medium hover:bg-gray-50 transition-colors">
                     Cancel
                 </button>
-                <button @click="showAddUserModal = false"
+                <button @click="handleAddUser"
                     class="flex-1 py-3 bg-[#847365] cursor-pointer text-white rounded-xl text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm">
                     Add
                 </button>
@@ -668,7 +699,7 @@
                                 Approved 2026-02-01</p>
                             <p v-else class="text-[13px] text-gray-500 font-medium whitespace-nowrap">Approved
                                 2026-01-15</p>
-                            <button
+                            <button @click="handleRemoveUser"
                                 class="w-9 h-9 flex-shrink-0 cursor-pointer rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors"
                                 title="Remove User">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -695,25 +726,117 @@
         </div>
     </Teleport>
 
+    <!-- Image Lightbox Modal -->
+    <Teleport to="body">
+        <div v-if="showLightbox"
+            class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            @click="showLightbox = false">
+            <button @click.stop="showLightbox = false"
+                class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors bg-white/10 p-2 rounded-full backdrop-blur-md cursor-pointer">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <img v-if="product?.images?.length" :src="getImageUrl(product.images[currentImageIndex].url)"
+                class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" @click.stop />
+            <img v-else :src="productImage" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                @click.stop />
+
+            <template v-if="product?.images?.length > 1">
+                <button @click.stop="prevImage"
+                    class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 backdrop-blur-md transition-colors cursor-pointer">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button @click.stop="nextImage"
+                    class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 backdrop-blur-md transition-colors cursor-pointer">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </template>
+        </div>
+    </Teleport>
+
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useProductStore } from '../store/product'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
+import DeleteModal from '../components/DeleteModal.vue'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
+
+const route = useRoute()
+const productStore = useProductStore()
 const isSidebarOpen = ref(false)
 const showDeleteModal = ref(false)
+const isDeleting = ref(false)
 const showAddUserModal = ref(false)
 const showViewAllModal = ref(false)
+const showLightbox = ref(false)
 const priceRequiresApproval = ref(true)
 
-const catalogLink = 'https://nimora-studio.lovable.app/catalog/nimora-studio'
+const product = computed(() => productStore.currentProduct)
+const apiUrl = import.meta.env.VITE_API_URL || ''
+
+const currentImageIndex = ref(0)
+
+const getImageUrl = (url) => {
+    if (!url) return ''
+    return url.startsWith('/') ? `${apiUrl}${url}` : url
+}
+
+const nextImage = () => {
+    if (product.value?.images?.length) {
+        currentImageIndex.value = (currentImageIndex.value + 1) % product.value.images.length
+    }
+}
+
+const prevImage = () => {
+    if (product.value?.images?.length) {
+        currentImageIndex.value = (currentImageIndex.value - 1 + product.value.images.length) % product.value.images.length
+    }
+}
+
+const productImage = computed(() => {
+    if (product.value?.images?.[0]?.url) {
+        let url = product.value.images[0].url
+        return url.startsWith('/') ? `${apiUrl}${url}` : url
+    }
+    return 'https://via.placeholder.com/1000x800?text=No+Image'
+})
+
+const catalogLink = computed(() => {
+    if (!product.value) return 'Loading...'
+    const origin = window.location.origin
+    return `${origin}/products/${product.value.id}`
+})
+
+onMounted(async () => {
+    const productId = route.params.id
+    if (productId) {
+        try {
+            await productStore.fetchProductById(productId)
+        } catch (error) {
+            console.error('Error fetching product:', error)
+        }
+    }
+})
 const linkCopied = ref(false)
 
 const copyLink = async () => {
     try {
-        await navigator.clipboard.writeText(catalogLink)
+        await navigator.clipboard.writeText(catalogLink.value)
         linkCopied.value = true
         setTimeout(() => {
             linkCopied.value = false
@@ -721,6 +844,35 @@ const copyLink = async () => {
     } catch (err) {
         console.error('Failed to copy link:', err)
     }
+}
+
+const handleDelete = async () => {
+    isDeleting.value = true
+    try {
+        await productStore.deleteProduct(product.value.id)
+        toast.success('Product deleted successfully')
+        showDeleteModal.value = false
+        // Redirect to products list
+        window.location.href = '/products'
+    } catch (error) {
+        toast.error(error.message || 'Failed to delete product')
+    } finally {
+        isDeleting.value = false
+    }
+}
+
+const togglePriceApproval = () => {
+    priceRequiresApproval.value = !priceRequiresApproval.value
+    toast.info(`Price approval is now ${priceRequiresApproval.value ? 'enabled' : 'disabled'}`)
+}
+
+const handleAddUser = () => {
+    showAddUserModal.value = false
+    toast.success('User added to approved buyers list')
+}
+
+const handleRemoveUser = () => {
+    toast.success('User removed from approved buyers')
 }
 </script>
 

@@ -48,7 +48,7 @@
                                     <line x1="12" y1="22.08" x2="12" y2="12"></line>
                                 </svg>
                             </div>
-                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">1,060</h3>
+                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">{{ stats.total }}</h3>
                             <p class="text-[13px] text-gray-500">All Products</p>
                         </div>
 
@@ -63,7 +63,7 @@
                                     <polyline points="9 12 11 14 15 10"></polyline>
                                 </svg>
                             </div>
-                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">1,000</h3>
+                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">{{ stats.inStock }}</h3>
                             <p class="text-[13px] text-gray-500">In Stock</p>
                         </div>
 
@@ -79,7 +79,7 @@
                                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                                 </svg>
                             </div>
-                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">50</h3>
+                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">{{ stats.lowStock }}</h3>
                             <p class="text-[13px] text-gray-500">Low Stock</p>
                         </div>
 
@@ -95,7 +95,7 @@
                                     <line x1="9" y1="9" x2="15" y2="15"></line>
                                 </svg>
                             </div>
-                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">10</h3>
+                            <h3 class="text-[26px] font-bold text-gray-900 mb-1 leading-none tracking-tight">{{ stats.outOfStock }}</h3>
                             <p class="text-[13px] text-gray-500">Out of Stock</p>
                         </div>
                     </div>
@@ -124,11 +124,11 @@
                                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                 </span>
-                                <input type="text"
+                                <input type="text" v-model="searchQuery"
                                     class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 text-[14px] text-gray-700 bg-white"
                                     placeholder="Search products, categories...">
                             </div>
-                            <button
+                            <button @click="handleExport"
                                 class="w-11 h-11 flex-shrink-0 flex items-center justify-center bg-[#847365] hover:bg-[#736458] text-white rounded-xl transition-colors shadow-sm">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -161,7 +161,7 @@
                             </thead>
                             <!-- Table Body -->
                             <tbody class="divide-y divide-gray-100">
-                                <tr v-for="(item, index) in filteredInventory" :key="index"
+                                <tr v-for="(item, index) in paginatedInventory" :key="index"
                                     class="hover:bg-gray-50/50 transition-colors">
                                     <!-- Product Info -->
                                     <td class="px-6 py-4">
@@ -199,8 +199,8 @@
                                     </td>
                                     <!-- Actions -->
                                     <td class="px-6 py-4 text-center">
-                                        <button
-                                            class="p-2 text-gray-400 hover:text-gray-700 transition-colors rounded-lg hover:bg-gray-100">
+                                        <router-link :to="`/products/${item.id}`"
+                                            class="inline-block p-2 text-gray-400 hover:text-gray-700 transition-colors rounded-lg hover:bg-gray-100">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                                 stroke-linejoin="round">
@@ -208,14 +208,16 @@
                                                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z">
                                                 </path>
                                             </svg>
-                                        </button>
+                                        </router-link>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <PaginationComponent />
+                    <PaginationComponent :current-page="currentPage" :total-pages="totalPages"
+                        :total-items="filteredInventory.length" :per-page="perPage"
+                        @page-change="currentPage = $event" />
 
                 </div>
             </main>
@@ -224,73 +226,140 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useProductStore } from '../store/product'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import PaginationComponent from '../components/pagnetion.vue'
+import { useToast } from 'vue-toastification'
 
-// Temporary image paths based on AllProducts.vue
-import productImg1 from '../assets/imgs/product/1.webp'
-import productImg2 from '../assets/imgs/product/2.webp'
-import productImg3 from '../assets/imgs/product/3.webp'
+const toast = useToast()
+const productStore = useProductStore()
 
 const isSidebarOpen = ref(false)
 const activeFilter = ref('All')
+const searchQuery = ref('')
 
-// Mock Data
-const inventoryItems = ref([
-    {
-        name: 'Geometric Ceramic Tile',
-        category: 'Ceramic',
-        image: productImg2,
-        status: 'In stock',
-        quantity: '850 sqm',
-        location: 'Data',
-        lastUpdated: '20/2/2026'
-    },
-    {
-        name: 'Herringbone Oak Parquet',
-        category: 'Parquet',
-        image: productImg3,
-        status: 'Low Stock',
-        quantity: '850 sqm',
-        location: 'Data',
-        lastUpdated: '20/2/2026'
-    },
-    {
-        name: 'Carrara Marble',
-        category: 'Marble',
-        image: productImg1,
-        status: 'Out of Stock',
-        quantity: '850 sqm',
-        location: 'Data',
-        lastUpdated: '20/2/2026'
-    },
-    {
-        name: 'Geometric Ceramic Tile',
-        category: 'Ceramic',
-        image: productImg2,
-        status: 'In stock',
-        quantity: '850 sqm',
-        location: 'Data',
-        lastUpdated: '20/2/2026'
-    },
-    {
-        name: 'Herringbone Oak Parquet',
-        category: 'Parquet',
-        image: productImg3,
-        status: 'Low Stock',
-        quantity: '850 sqm',
-        location: 'Data',
-        lastUpdated: '20/2/2026'
+onMounted(async () => {
+    try {
+        await productStore.fetchProducts({ skip: 0, limit: 1000 })
+    } catch (error) {
+        console.error('Failed to fetch products:', error)
+        toast.error('Failed to load inventory data')
     }
-])
+})
+
+const mappedInventory = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    return productStore.products.map(product => {
+        let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+        if (product.images?.[0]?.url) {
+            imageUrl = product.images[0].url
+            if (imageUrl.startsWith('/')) {
+                imageUrl = `${apiUrl}${imageUrl}`
+            }
+        }
+
+        const quantity = product.inventory?.total_quantity || 0
+        let status = 'In stock'
+        if (quantity === 0) {
+            status = 'Out of Stock'
+        } else if (quantity <= 20) {
+            status = 'Low Stock'
+        }
+
+        return {
+            id: product.id,
+            name: product.name,
+            category: product.metadata?.category || 'Uncategorized',
+            image: imageUrl,
+            status: status,
+            quantity: `${quantity} units`, // Could use metadata for unit if available
+            location: product.nimora_product_code || 'N/A',
+            lastUpdated: product.updated_at ? new Date(product.updated_at).toLocaleDateString('en-GB') : 'N/A'
+        }
+    })
+})
+
+const stats = computed(() => {
+    const items = mappedInventory.value
+    return {
+        total: items.length,
+        inStock: items.filter(i => i.status === 'In stock').length,
+        lowStock: items.filter(i => i.status === 'Low Stock').length,
+        outOfStock: items.filter(i => i.status === 'Out of Stock').length
+    }
+})
+
+const currentPage = ref(1)
+const perPage = 10
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredInventory.value.length / perPage)))
+
+const paginatedInventory = computed(() => {
+    const start = (currentPage.value - 1) * perPage
+    const end = start + perPage
+    return filteredInventory.value.slice(start, end)
+})
 
 const filteredInventory = computed(() => {
-    if (activeFilter.value === 'All') return inventoryItems.value
-    // Make filter case-insensitive properly
-    return inventoryItems.value.filter(item => item.status.toLowerCase() === activeFilter.value.toLowerCase())
+    let items = mappedInventory.value
+    
+    // Status Filter
+    if (activeFilter.value !== 'All') {
+        items = items.filter(item => item.status.toLowerCase() === activeFilter.value.toLowerCase())
+    }
+    
+    // Search Filter
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        items = items.filter(item => 
+            item.name.toLowerCase().includes(query) || 
+            item.category.toLowerCase().includes(query) ||
+            item.location.toLowerCase().includes(query)
+        )
+    }
+    
+    return items
 })
+
+const handleExport = () => {
+    toast.info('Exporting inventory data...')
+    
+    try {
+        // Prepare CSV data
+        const headers = ['Product Name', 'Category', 'Product Code', 'Stock Status', 'Quantity', 'Last Updated']
+        const rows = mappedInventory.value.map(item => [
+            `"${item.name}"`,
+            `"${item.category}"`,
+            `"${item.location}"`, // location stores product code
+            `"${item.status}"`,
+            `"${item.quantity}"`,
+            `"${item.lastUpdated}"`
+        ])
+        
+        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n')
+        
+        // Create blob and download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+        const url = URL.createObjectURL(blob)
+        
+        link.setAttribute('href', url)
+        link.setAttribute('download', `nimora_inventory_${new Date().toISOString().split('T')[0]}.csv`)
+        link.style.visibility = 'hidden'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        setTimeout(() => {
+            toast.success('Inventory exported successfully as CSV')
+        }, 500)
+    } catch (error) {
+        console.error('Export failed:', error)
+        toast.error('Failed to export inventory')
+    }
+}
 
 const getStockClasses = (status) => {
     const s = status.toLowerCase()

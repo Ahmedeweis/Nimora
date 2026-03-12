@@ -50,9 +50,9 @@
                     <router-link to="/profile" class="flex items-center space-x-2 hover:opacity-80 transition-opacity">
                         <div
                             class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold text-sm">
-                            M
+                            {{ companyInitial }}
                         </div>
-                        <span class="text-sm text-gray-600 font-medium hidden sm:block">merchant@nimora.com</span>
+                        <span class="text-sm text-gray-600 font-medium hidden sm:block">{{ userEmail }}</span>
                     </router-link>
 
                     <!-- Language indicator -->
@@ -73,7 +73,15 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useAuthStore } from '../store/auth'
+
 defineEmits(['open-sidebar'])
+const authStore = useAuthStore()
+
+const userEmail = computed(() => authStore.user?.email || 'Guest')
+const companyInitial = computed(() => authStore.user?.company_name?.charAt(0) || 'M')
+
 </script>
 
 <style scoped>

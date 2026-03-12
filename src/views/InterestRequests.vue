@@ -124,7 +124,7 @@
                                     </div>
                                 </div>
                                 <div class="relative">
-                                    <select v-model="request.status"
+                                    <select v-model="request.status" @change="handleStatusChange(request)"
                                         class="appearance-none pl-4 pr-10 py-2 rounded-[10px] border border-gray-200 bg-white text-[14px] font-medium text-gray-700 outline-none focus:border-gray-300 hover:bg-gray-50 transition-colors cursor-pointer min-w-[130px]">
                                         <option value="New">New</option>
                                         <option value="Contacted">Contacted</option>
@@ -203,8 +203,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useToast } from 'vue-toastification'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
+
+const toast = useToast()
 
 const isSidebarOpen = ref(false)
 const activeFilter = ref('All')
@@ -255,6 +258,10 @@ const filteredRequests = computed(() => {
     }
     return list
 })
+
+const handleStatusChange = (request) => {
+    toast.success(`Request status updated to ${request.status}`)
+}
 
 const getStatusStyles = (status) => {
     switch (status) {

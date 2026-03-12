@@ -42,7 +42,7 @@
                                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                                 </svg>
                             </div>
-                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">8</p>
+                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">{{ totalPermissions }}</p>
                             <p class="text-[13px] text-gray-500">Total Permissions</p>
                         </div>
                         <div
@@ -54,7 +54,7 @@
                                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                                 </svg>
                             </div>
-                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">1,000</p>
+                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">{{ activePermissions }}</p>
                             <p class="text-[13px] text-gray-500">Active & Valid</p>
                         </div>
                         <div
@@ -67,7 +67,7 @@
                                     <line x1="12" y1="16" x2="12.01" y2="16"></line>
                                 </svg>
                             </div>
-                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">100</p>
+                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">{{ expiringSoonCount }}</p>
                             <p class="text-[13px] text-gray-500">Expiring Soon</p>
                         </div>
                         <div
@@ -80,7 +80,7 @@
                                     <line x1="9" y1="9" x2="15" y2="15"></line>
                                 </svg>
                             </div>
-                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">100</p>
+                            <p class="text-[26px] font-bold text-gray-900 mb-0.5">{{ expiredCount }}</p>
                             <p class="text-[13px] text-gray-500">Expired</p>
                         </div>
                     </div>
@@ -123,38 +123,45 @@
                         </div>
 
                         <!-- Rows -->
-                        <div v-for="(perm, idx) in filteredPermissions" :key="idx"
+                        <div v-for="(perm, idx) in paginatedPermissions" :key="idx"
                             class="grid grid-cols-6 px-5 py-4 border-b border-gray-50 last:border-0 items-center hover:bg-gray-50/50 transition-colors">
-                            <span class="text-[14px] text-gray-700">{{ perm.customer }}</span>
+                            <span class="text-[14px] text-gray-700 truncate pr-4">{{ perm.customer_email ||
+                                perm.customer_id }}</span>
                             <span>
                                 <span :class="[
                                     'px-3 py-1 rounded-full text-[12px] font-medium',
-                                    perm.permission === 'Full Access' ? 'bg-orange-100 text-orange-600' :
-                                        perm.permission === 'Price' ? 'bg-green-100 text-green-600' :
+                                    perm.can_view_catalog && perm.can_view_price ? 'bg-orange-100 text-orange-600' :
+                                        perm.can_view_price ? 'bg-green-100 text-green-600' :
                                             'bg-blue-100 text-blue-600'
-                                ]">{{ perm.permission }}</span>
+                                ]">
+                                    {{ perm.can_view_catalog && perm.can_view_price ? 'Full Access' :
+                                        (perm.can_view_price ? 'View Price' : 'View Catalog') }}
+                                </span>
                             </span>
                             <span>
                                 <span :class="[
                                     'flex items-center gap-1.5 w-fit px-3 py-1 rounded-full text-[12px] font-medium',
-                                    perm.status === 'Active' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
+                                    perm.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-500'
                                 ]">
                                     <span
-                                        :class="['w-1.5 h-1.5 rounded-full', perm.status === 'Active' ? 'bg-green-500' : 'bg-red-400']"></span>
-                                    {{ perm.status }}
+                                        :class="['w-1.5 h-1.5 rounded-full', perm.status === 'active' ? 'bg-green-500' : 'bg-red-400']"></span>
+                                    {{ perm.status.charAt(0).toUpperCase() + perm.status.slice(1) }}
                                 </span>
                             </span>
-                            <span class="text-[14px] text-gray-500">{{ perm.expiration }}</span>
-                            <span class="text-[14px] text-gray-500">{{ perm.notes }}</span>
+                            <span class="text-[14px] text-gray-500">{{ formatDate(perm.expires_at) }}</span>
+                            <span class="text-[14px] text-gray-500 truncate" :title="perm.catalog_scope">{{
+                                perm.catalog_scope || 'All' }}</span>
                             <div class="flex items-center justify-end gap-3">
-                                <button class="text-gray-400 hover:text-gray-700 transition-colors">
+                                <button @click="openEditModal(perm)"
+                                    class="text-gray-400 hover:text-gray-700 transition-colors">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M12 20h9"></path>
                                         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                                     </svg>
                                 </button>
-                                <button class="text-red-400 hover:text-red-600 transition-colors">
+                                <button @click="handleRevokePermission(perm)"
+                                    class="text-red-400 hover:text-red-600 transition-colors">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -381,13 +388,13 @@
                     <div class="w-full h-[1px] bg-gray-100"></div>
                 </div>
                 <div class="p-6 pt-5 flex gap-3">
-                    <button @click="isAddModalOpen = false"
+                    <button @click="isAddModalOpen = false; isEditing = false"
                         class="flex-1 py-3 border border-gray-200 text-gray-900 rounded-[12px] text-[15px] font-medium hover:bg-gray-50 transition-colors">
                         Cancel
                     </button>
-                    <button
+                    <button @click="handleAddPermission"
                         class="flex-1 py-3 bg-[#847365] text-white rounded-[12px] text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm">
-                        Add Permission
+                        {{ isEditing ? 'Update Permission' : 'Add Permission' }}
                     </button>
                 </div>
             </div>
@@ -588,83 +595,84 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import Pagnetion from '../components/pagnetion.vue'
+import { usePermissionStore } from '../store/permission'
+import { useProductStore } from '../store/product'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
+const permissionStore = usePermissionStore()
+const productStore = useProductStore()
 
 const isSidebarOpen = ref(false)
 const isAddModalOpen = ref(false)
+const isEditing = ref(false)
 const activeFilter = ref('All')
 const searchQuery = ref('')
 const currentPage = ref(1)
-const perPage = 5
+const perPage = 10
 
-const newPerm = ref({ email: '', name: '', permission: 'Full Access', days: 30, notes: '' })
+const newPerm = ref({
+    id: null,
+    email: '',
+    name: '',
+    permission: 'Full Access',
+    days: 30,
+    notes: '',
+    customer_id: null
+})
+
 // Modal 2 – Select Catalogs
 const showCatalogModal = ref(false)
 const catalogSearch = ref('')
 const catalogSelectedIds = ref([])
 const allowAllCatalogs = ref(false)
 
-const catalogs = ref([
-    {
-        id: 1, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 101, name: 'Product 1', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 102, name: 'Product 2', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 2, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 103, name: 'Product 1', type: 'Granite', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 104, name: 'Product 2', type: 'Granite', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 3, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 105, name: 'Product 1', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 106, name: 'Product 2', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 4, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 107, name: 'Product 1', type: 'Ceramic', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 108, name: 'Product 2', type: 'Ceramic', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 5, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 109, name: 'Product 1', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 110, name: 'Product 2', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 6, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 111, name: 'Product 1', type: 'Granite', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 112, name: 'Product 2', type: 'Granite', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 7, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 113, name: 'Product 1', type: 'Ceramic', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 114, name: 'Product 2', type: 'Ceramic', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-    {
-        id: 8, name: 'Catalog1', productCount: 2,
-        products: [
-            { id: 115, name: 'Product 1', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-            { id: 116, name: 'Product 2', type: 'Marble', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=80&h=80&fit=crop' },
-        ]
-    },
-])
+// Modal 3 – Select Products
+const showProductsModal = ref(false)
+const activeCatalog = ref(null)
+const allowAllProducts = ref(false)
+const productSearch = ref('')
+const selectedProductIds = ref([])
+
+const catalogs = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    const catMap = {}
+
+    productStore.products.forEach(product => {
+        const catName = product.metadata?.category || 'Uncategorized'
+        if (!catMap[catName]) {
+            let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+            if (product.images?.[0]?.url) {
+                imageUrl = product.images[0].url
+                if (imageUrl.startsWith('/')) {
+                    imageUrl = `${apiUrl}${imageUrl}`
+                }
+            }
+            catMap[catName] = {
+                id: catName,
+                name: catName,
+                productCount: 0,
+                image: imageUrl,
+                products: []
+            }
+        }
+        catMap[catName].productCount++
+        catMap[catName].products.push({
+            id: product.id,
+            name: product.name,
+            type: product.metadata?.classification || 'General',
+            image: product.images?.[0]?.url
+                ? (product.images[0].url.startsWith('/') ? `${apiUrl}${product.images[0].url}` : product.images[0].url)
+                : 'https://via.placeholder.com/80x80'
+        })
+    })
+
+    return Object.values(catMap).sort((a, b) => a.name.localeCompare(b.name))
+})
 
 const filteredCatalogs = computed(() => {
     if (!catalogSearch.value) return catalogs.value
@@ -682,13 +690,6 @@ const toggleCatalogId = (id) => {
         catalogSelectedIds.value = [...catalogSelectedIds.value, id]
     }
 }
-
-// Modal 3 – Select Products
-const showProductsModal = ref(false)
-const activeCatalog = ref(null)
-const allowAllProducts = ref(false)
-const productSearch = ref('')
-const selectedProductIds = ref([])
 
 const activeCatalogProducts = computed(() => activeCatalog.value?.products ?? [])
 
@@ -720,28 +721,126 @@ const expiryDate = computed(() => {
     return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
 })
 
-const filters = ['All', 'Active', 'Expiring', 'Soon Expired']
-
-const permissions = ref([
-    { customer: 'Data', permission: 'Full Access', status: 'Active', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Price', status: 'Expired', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Full Access', status: 'Active', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Full Access', status: 'Expired', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Catalog', status: 'Active', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Price', status: 'Active', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Full Access', status: 'Expired', expiration: 'Data', notes: 'Data' },
-    { customer: 'Data', permission: 'Catalog', status: 'Active', expiration: 'Data', notes: 'Data' },
-])
-
 const filteredPermissions = computed(() => {
-    let list = permissions.value
-    if (activeFilter.value === 'Active') list = list.filter(p => p.status === 'Active')
-    else if (activeFilter.value === 'Expiring' || activeFilter.value === 'Soon Expired') list = list.filter(p => p.status === 'Expired')
-    if (searchQuery.value) list = list.filter(p => p.customer.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    let list = permissionStore.permissions
+    if (activeFilter.value === 'Active') list = list.filter(p => p.status === 'active')
+    else if (activeFilter.value === 'Expiring' || activeFilter.value === 'Soon Expired') {
+        const soon = new Date()
+        soon.setDate(soon.getDate() + 7)
+        list = list.filter(p => new Date(p.expires_at) < soon && p.status === 'active')
+    }
+
+    if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        list = list.filter(p => {
+            const email = (p.customer_email || '').toLowerCase()
+            const cid = (p.customer_id || '').toLowerCase()
+            return email.includes(query) || cid.includes(query)
+        })
+    }
     return list
 })
 
+const paginatedPermissions = computed(() => {
+    const start = (currentPage.value - 1) * perPage
+    return filteredPermissions.value.slice(start, start + perPage)
+})
+
+const totalPermissions = computed(() => permissionStore.permissions.length)
+const activePermissions = computed(() => permissionStore.permissions.filter(p => p.status === 'active').length)
+const expiringSoonCount = computed(() => {
+    const soon = new Date()
+    soon.setDate(soon.getDate() + 7)
+    return permissionStore.permissions.filter(p => new Date(p.expires_at) < soon && p.status === 'active').length
+})
+const expiredCount = computed(() => permissionStore.permissions.filter(p => p.status === 'expired').length)
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A'
+    const d = new Date(dateStr)
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+}
+
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredPermissions.value.length / perPage)))
+
+const handleAddPermission = async () => {
+    try {
+        const can_view_catalog = newPerm.value.permission === 'Full Access' || newPerm.value.permission === 'View Catalog'
+        const can_view_price = newPerm.value.permission === 'Full Access' || newPerm.value.permission === 'View Prices'
+        const expires_at = new Date()
+        expires_at.setDate(expires_at.getDate() + Number(newPerm.value.days || 0))
+
+        const payload = {
+            can_view_catalog,
+            can_view_price,
+            expires_at: expires_at.toISOString(),
+            catalog_scope: allowAllCatalogs.value ? 'all' : (catalogSelectedIds.value.join(',') || 'none')
+        }
+
+        if (isEditing.value) {
+            await permissionStore.updateCustomerPermission(newPerm.value.customer_id, {
+                ...payload,
+                status: 'active'
+            })
+            toast.success('Permission updated successfully!')
+        } else {
+            const invitePayload = {
+                email: newPerm.value.email,
+                can_view_catalog,
+                can_view_price,
+                expires_at: expires_at.toISOString()
+            }
+            await permissionStore.grantPermissionByEmail(invitePayload)
+            toast.success('Permission granted successfully!')
+        }
+
+        isAddModalOpen.value = false
+        isEditing.value = false
+        await permissionStore.fetchAllPermissions()
+    } catch (error) {
+        toast.error(error.message || 'Failed to process permission')
+    }
+}
+
+const openEditModal = (perm) => {
+    isEditing.value = true
+    newPerm.value = {
+        id: perm.id,
+        customer_id: perm.customer_id,
+        email: perm.customer_email || '',
+        name: '',
+        permission: perm.can_view_catalog && perm.can_view_price ? 'Full Access' : (perm.can_view_price ? 'View Prices' : 'View Catalog'),
+        days: 30,
+        notes: '',
+        catalog_scope: perm.catalog_scope
+    }
+    isAddModalOpen.value = true
+}
+
+const handleRevokePermission = async (perm) => {
+    if (!confirm(`Are you sure you want to revoke permission for ${perm.customer_email || perm.customer_id}?`)) return
+    try {
+        await permissionStore.deleteCustomerPermission(perm.customer_id)
+        toast.success('Permission revoked successfully')
+        await permissionStore.fetchAllPermissions()
+    } catch (error) {
+        toast.error('Failed to revoke permission')
+    }
+}
+
+const filters = ['All', 'Active', 'Expiring', 'Soon Expired']
+
+onMounted(async () => {
+    try {
+        await Promise.all([
+            permissionStore.fetchAllPermissions().catch(() => { }),
+            productStore.fetchProducts({ skip: 0, limit: 1000 })
+        ])
+    } catch (error) {
+        console.error('Failed to fetch initial data:', error)
+    }
+})
+
 </script>
 
 <style scoped>

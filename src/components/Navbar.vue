@@ -24,8 +24,8 @@
 
         <!-- Navigation links -->
         <div class="flex-1 px-4 pb-6 space-y-6" style="padding-top: 10px; border-top: solid 3px #E9E9E8;">
-            <!-- Main Dashboard -->
-            <div>
+            <div class="space-y-1">
+                <!-- Main Dashboard -->
                 <router-link to="/dashboard" :class="[
                     'flex items-center space-x-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors border-l-[3px]',
                     route.path === '/dashboard' || route.path === '/'
@@ -94,11 +94,8 @@
                                 ? 'bg-[#F1F1F1] text-black border-black'
                                 : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
                         ]">
-                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/categories') ? 'text-black' : 'text-gray-400']"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                            </svg>
+                            <img src="../assets/imgs/icons/category.svg" alt="Category"
+                                :class="['w-5 h-5 flex-shrink-0 transition-opacity', route.path.startsWith('/categories') ? 'opacity-100' : 'opacity-60']">
                             <span>Categories</span>
                         </router-link>
                     </li>
@@ -109,11 +106,8 @@
                                 ? 'bg-[#F1F1F1] text-black border-black'
                                 : 'text-[#64615F] hover:text-gray-900 hover:bg-gray-50 border-transparent'
                         ]">
-                            <svg :class="['w-5 h-5 flex-shrink-0', route.path.startsWith('/catalogs') ? 'text-black' : 'text-gray-400']"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
+                            <img src="../assets/imgs/icons/catalog.svg" alt="Catalog"
+                                :class="['w-5 h-5 flex-shrink-0 transition-opacity', route.path.startsWith('/catalogs') ? 'opacity-100' : 'opacity-60']">
                             <span>Catalogs</span>
                         </router-link>
                     </li>

@@ -1,0 +1,18 @@
+انا محتاج End points مخصوصة ل  Catalogs  ..  CURD +  Assign  product  to category
+عن طريق مثلا Category id + product id
+
+{
+    "id": "a6ae64b7-12eb-4df9-a603-215d762f9851",
+    "customer_id": "3abaf291-6878-4b9c-94ae-c3740f8be6d9",
+    "tenant_id": "315efbf6-bdf9-4852-91ec-888e3611b603",
+    "can_view_catalog": true,
+    "can_view_price": true,
+    "granted_via_email": true,
+    "granted_at": "2026-03-12T12:24:40.913130+00:00",
+    "expires_at": null,
+    "catalog_scope": null,
+    "status": "active",
+    "granted_by": null,
+    "created_at": "2026-03-12T12:24:40.910808+00:00",
+    "updated_at": ""
+}
