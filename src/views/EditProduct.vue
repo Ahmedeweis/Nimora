@@ -97,7 +97,7 @@
                                                         <select v-model="form.category" @change="hasUnsavedChanges = true"
                                                             class="w-full border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 bg-[#fefefe] appearance-none">
                                                             <option value="">Select category</option>
-                                                            <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
+                                                            <option v-for="cat in categories" :key="cat.id" :value="cat.name">{{ cat.name }}</option>
                                                         </select>
                                                         <div
                                                             class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
@@ -571,17 +571,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import { useToast } from 'vue-toastification'
 import { useProductStore } from '../store/product'
+import { useCatalogStore } from '../store/catalog'
 
 const toast = useToast()
 const router = useRouter()
 const route = useRoute()
 const productStore = useProductStore()
+const catalogStore = useCatalogStore()
 
 const isSidebarOpen = ref(false)
 const showUnsavedModal = ref(false)
@@ -619,7 +621,7 @@ const getImageUrl = (url) => {
     return url.startsWith('/') ? `${apiUrl}${url}` : url
 }
 
-const categories = ref(['Marble', 'Granite', 'Ceramic'])
+const categories = computed(() => catalogStore.categories)
 const classifications = ref(['Natural Stone', 'Engineered Stone'])
 const applications = ref(['Floor', 'Wall', 'Border', 'Outdoor', 'Stairs'])
 
@@ -677,7 +679,11 @@ const addCustomClassification = () => {
 onMounted(async () => {
     try {
         const id = route.params.id
-        const product = await productStore.fetchProductById(id)
+        await Promise.all([
+            productStore.fetchProductById(id),
+            catalogStore.fetchCategories()
+        ])
+        const product = productStore.currentProduct
         
         // Populate form
         form.name = product.name || ''

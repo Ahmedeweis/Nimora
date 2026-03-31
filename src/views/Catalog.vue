@@ -31,9 +31,9 @@
                         </button>
                     </div>
 
-                    <!-- Categories Grid -->
+                    <!-- Catalogs Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div v-for="(catalog, index) in categories" :key="index"
+                        <div v-for="catalog in catalogs" :key="catalog.id"
                             class="bg-white rounded-[16px] border border-gray-200 p-2 sm:p-3 flex flex-col transition-all hover:shadow-md relative">
 
                             <!-- Image -->
@@ -58,7 +58,7 @@
 
                                     <!-- 3 Dots Menu -->
                                     <div class="relative">
-                                        <button @click.stop="toggleMenu(index)"
+                                        <button @click.stop="toggleMenu(catalog.id)"
                                             class="w-8 h-8 flex items-center justify-center text-gray-700 hover:bg-gray-50 rounded-full transition-colors relative z-10">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -70,7 +70,7 @@
                                         </button>
 
                                         <!-- Dropdown Menu -->
-                                        <div v-if="activeMenu === index"
+                                        <div v-if="activeMenu === catalog.id"
                                             class="absolute top-10 right-0 w-36 bg-white rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-gray-100 py-1 z-20 overflow-hidden text-left origin-top-right flex flex-col">
 
                                             <!-- Backdrop specific to this menu -->
@@ -102,7 +102,7 @@
 
                                             <div class="w-full h-[1px] bg-gray-100 my-0.5"></div>
 
-                                            <button
+                                            <button @click="handleDeleteCatalog(catalog)"
                                                 class="w-full px-4 py-2.5 text-left text-[14px] text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -124,7 +124,7 @@
                                 <p class="text-[13px] text-gray-500 mb-4">{{ catalog.productCount }} Products</p>
 
                                 <!-- View Products Button -->
-                                <button @click="$router.push('/catalogs/' + index)"
+                                <button @click="$router.push('/catalogs/' + catalog.id)"
                                     class="mt-auto flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-[13px] font-semibold transition-colors">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -165,8 +165,15 @@
                     <!-- Catalog Name -->
                     <div>
                         <label class="block text-[14px] font-medium text-gray-900 mb-2">Catalog Name</label>
-                        <input type="text" placeholder="e.g. Catalog1"
+                        <input type="text" v-model="catalogForm.name" placeholder="e.g. Summer Collection"
                             class="w-full px-4 py-3 rounded-[12px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#847365]/20 focus:border-[#847365] transition-colors text-[14px]">
+                    </div>
+
+                    <!-- Catalog Description -->
+                    <div>
+                        <label class="block text-[14px] font-medium text-gray-900 mb-2">Description</label>
+                        <textarea v-model="catalogForm.description" placeholder="Describe this catalog..." rows="3"
+                            class="w-full px-4 py-3 rounded-[12px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#847365]/20 focus:border-[#847365] transition-colors text-[14px] resize-none"></textarea>
                     </div>
 
                     <!-- Catalog Image -->
@@ -195,9 +202,9 @@
                         class="flex-1 py-3 px-4 border border-gray-200 text-gray-900 rounded-[12px] text-[15px] font-medium hover:bg-gray-50 transition-colors">
                         Cancel
                     </button>
-                    <button
-                        class="flex-1 py-3 px-4 bg-[#847365] text-white rounded-[12px] text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm">
-                        Add Catalog
+                    <button @click="handleAddCatalog" :disabled="isSubmitting"
+                        class="flex-1 py-3 px-4 bg-[#847365] text-white rounded-[12px] text-[15px] font-medium hover:bg-[#736458] transition-colors shadow-sm disabled:opacity-50">
+                        {{ isSubmitting ? 'Adding...' : 'Add Catalog' }}
                     </button>
                 </div>
             </div>
@@ -270,20 +277,32 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useCatalogStore } from '../store/catalog'
+import { useProductStore } from '../store/product'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
+import { useToast } from 'vue-toastification'
 
-// Temporary image paths based on AllProducts.vue patterns
-import productImg1 from '../assets/imgs/product/1.webp'
-import productImg2 from '../assets/imgs/product/2.webp'
-import productImg3 from '../assets/imgs/product/3.webp'
+const router = useRouter()
+const toast = useToast()
+const catalogStore = useCatalogStore()
+const productStore = useProductStore()
 
 const isSidebarOpen = ref(false)
 const activeMenu = ref(null)
 const isAddModalOpen = ref(false)
 const isEditModalOpen = ref(false)
+const isSubmitting = ref(false)
 const selectedCatalog = ref(null)
+
+const catalogForm = reactive({
+    name: '',
+    description: '',
+    imageFile: null,
+    imagePreview: null
+})
 
 const openEditModal = (catalog) => {
     selectedCatalog.value = { ...catalog }
@@ -291,61 +310,84 @@ const openEditModal = (catalog) => {
     activeMenu.value = null
 }
 
-const toggleMenu = (index) => {
-    if (activeMenu.value === index) {
+const toggleMenu = (id) => {
+    if (activeMenu.value === id) {
         activeMenu.value = null
     } else {
-        activeMenu.value = index
+        activeMenu.value = id
     }
 }
 
-// Close menu when clicking outside
-const closeMenu = (e) => {
-    // If we click anywhere, just close the menu. The click.stop on the toggle button prevents it from immediately closing when opening.
+const triggerFileUpload = () => {
+    // Hidden file input logic if needed, similar to Categories.vue
+}
+
+const handleAddCatalog = async () => {
+    if (!catalogForm.name.trim()) {
+        toast.warning('Please enter a catalog name')
+        return
+    }
+
+    isSubmitting.value = true
+    try {
+        await catalogStore.createCategory({
+            name: catalogForm.name,
+            description: catalogForm.description
+        })
+        toast.success(`Catalog "${catalogForm.name}" created successfully`)
+        await catalogStore.fetchCategories()
+        
+        catalogForm.name = ''
+        catalogForm.description = ''
+        isAddModalOpen.value = false
+    } catch (error) {
+        toast.error(error.message || 'Failed to create catalog')
+    } finally {
+        isSubmitting.value = false
+    }
+}
+
+const handleDeleteCatalog = async (catalog) => {
+    if (!confirm(`Are you sure you want to delete catalog "${catalog.name}"?`)) return
+    try {
+        await catalogStore.deleteCategory(catalog.id)
+        toast.success('Catalog deleted successfully')
+        await catalogStore.fetchCategories()
+    } catch (error) {
+        toast.error('Failed to delete catalog')
+    }
     activeMenu.value = null
 }
 
-onMounted(() => {
+const closeMenu = () => {
+    activeMenu.value = null
+}
+
+onMounted(async () => {
     document.addEventListener('click', closeMenu)
+    try {
+        await Promise.all([
+            catalogStore.fetchCategories(),
+            productStore.fetchProducts({ skip: 0, limit: 1000 })
+        ])
+    } catch (error) {
+        console.error('Failed to fetch data:', error)
+    }
 })
 
 onUnmounted(() => {
     document.removeEventListener('click', closeMenu)
 })
 
-// Mock Data for Catalogs
-const categories = ref([
-    {
-        name: 'Catalog4',
-        productCount: 2,
-        image: productImg1
-    },
-    {
-        name: 'Catalog5',
-        productCount: 2,
-        image: productImg2
-    },
-    {
-        name: 'Catalog6',
-        productCount: 2,
-        image: productImg3
-    },
-    {
-        name: 'Catalog7',
-        productCount: 2,
-        image: productImg1
-    },
-    {
-        name: 'Catalog8',
-        productCount: 2,
-        image: productImg2
-    },
-    {
-        name: 'Catalog9',
-        productCount: 2,
-        image: productImg3
-    }
-])
+// Catalogs derived from store (using categories store for catalogs)
+const catalogs = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    return catalogStore.categories.map(cat => ({
+        ...cat,
+        productCount: productStore.products.filter(p => p.metadata?.category === cat.name).length,
+        image: cat.image ? (cat.image.startsWith('/') ? `${apiUrl}${cat.image}` : cat.image) : 'https://via.placeholder.com/400x400?text=No+Image'
+    }))
+})
 </script>
 
 <style scoped>

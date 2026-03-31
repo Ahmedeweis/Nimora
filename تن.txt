@@ -1,0 +1,2 @@
+POST /api/v1/merchant/catalog/products
+missing Category - Classification -  

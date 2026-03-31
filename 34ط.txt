@@ -1,0 +1,50 @@
+
+========================
+
+Product Code
+12345678
+Generate Code الكود لازم يبدا زي داه كدة NIM-123456-789012 وازاي نمنع انه الاكواد تتكرر لانه مش عاوزين كدة 
+======================
+{
+    "id": "69b24f3f73f57f7269f4d77d",
+    "merchant_sku": "SKU-1773293375011",
+    "nimora_product_code": "NIM-123456-789012",
+    "name": "seramic",
+    "description": "seramic",
+    "variants": [],
+    "applications": [
+        {
+            "name": "Wall"
+        },
+        {
+            "name": "Floor"
+        },
+        {
+            "name": "red"
+        }
+    ],
+    "images": [],
+    "price": {
+        "amount": 200,
+        "currency": "EGP"
+    },
+    "inventory": {
+        "total_quantity": 100
+    },
+    "metadata": {
+        "category": "Granite",
+        "classification": "Natural Stone",
+        "available_colors": "white,red",
+        "available_sizes": "60",
+        "suitable_for": "kitchen",
+        "usage_level": "Low",
+        "design_style": "Contemporary",
+        "ai_visualization_description": ""
+    },
+    "marketplace_visible": false,
+    "marketplace_countries": [],
+    "customer_visible": true,
+    "direct_link_token": "qKioQMmFJw2hKRqynUiyuFMUqwGN0OWuZ-ewh8yT3D8",
+    "created_at": "2026-03-12T05:29:35.079623",
+    "updated_at": "2026-03-12T05:29:35.079625"
+}

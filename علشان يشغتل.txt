@@ -1,0 +1,44 @@
+    async def dispatch(self, request: Request, call_next):
+        """Process each request to validate JWT tokens."""
+
+        # Explicitly allow OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
+        # Skip auth for certain endpoints
+        skip_paths = [
+            "/docs",
+
+
+
+
+middle ware / asuth.py
+==================== # Mount static files (must be after more specific mounts)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# CORS middleware
+# Authentication middleware (must run first to set tenant context)
+app.add_middleware(AuthMiddleware)
+
+# Tenant context middleware (checks for tenant context set by auth middleware)
+app.add_middleware(TenantContextMiddleware)
+
+# CORS middleware (Must be last to be the outermost layer)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if settings.debug else [],
+
+@@ -42,12 +48,6 @@ app.add_middleware(
+    allow_headers=["*"],
+)
+
+# Authentication middleware (must run first to set tenant context)
+app.add_middleware(AuthMiddleware)
+
+# Tenant context middleware (checks for tenant context set by auth middleware)
+app.add_middleware(TenantContextMiddleware)
+
+# API routes
+app.include_router(router, prefix="/api/v1")
+
+main.py

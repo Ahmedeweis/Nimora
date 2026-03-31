@@ -52,7 +52,7 @@
                                                     <select v-model="form.category"
                                                         class="w-full border border-gray-200 rounded-xl pl-4 pr-10 py-2.5 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 bg-[#fefefe] appearance-none">
                                                         <option value="" disabled>Select category</option>
-                                                        <option v-for="cat in categories" :key="cat" :value="cat">{{ cat
+                                                        <option v-for="cat in categories" :key="cat.id" :value="cat.name">{{ cat.name
                                                             }}</option>
                                                     </select>
                                                     <div
@@ -735,12 +735,14 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useProductStore } from '../store/product'
+import { useCatalogStore } from '../store/catalog'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import { useToast } from 'vue-toastification'
 
 const toast = useToast()
 const productStore = useProductStore()
+const catalogStore = useCatalogStore()
 const isSidebarOpen = ref(false)
 const showSuccessModal = ref(false)
 const showErrorModal = ref(false)
@@ -768,16 +770,17 @@ const form = reactive({
 })
 
 onMounted(async () => {
-    if (productStore.products.length === 0) {
-        try {
-            await productStore.fetchProducts({ skip: 0, limit: 1000 })
-        } catch (error) {
-            console.error("Failed to fetch products for uniqueness check:", error)
-        }
+    try {
+        await Promise.all([
+            productStore.products.length === 0 ? productStore.fetchProducts({ skip: 0, limit: 1000 }) : Promise.resolve(),
+            catalogStore.fetchCategories()
+        ])
+    } catch (error) {
+        console.error("Failed to fetch data:", error)
     }
 })
 
-const categories = ref(['Marble', 'Granite', 'Ceramic'])
+const categories = computed(() => catalogStore.categories)
 const classifications = ref(['Natural Stone', 'Engineered Stone'])
 const applications = ref(['Floor', 'Wall', 'Border', 'Outdoor', 'Stairs'])
 

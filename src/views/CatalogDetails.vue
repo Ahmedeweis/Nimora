@@ -17,8 +17,8 @@
                     <!-- Header Area -->
                     <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
-                            <h1 class="text-[24px] font-bold text-gray-900 leading-tight mb-1">{{ catalog.name }}</h1>
-                            <p class="text-[14px] text-gray-500">{{ catalog.name }} Products</p>
+                            <h1 class="text-[24px] font-bold text-gray-900 leading-tight mb-1">{{ currentCatalog.name }}</h1>
+                            <p class="text-[14px] text-gray-500">{{ currentCatalog.name }} Products</p>
                         </div>
                         <div class="flex items-center gap-3">
                             <!-- Normal mode buttons -->
@@ -217,7 +217,7 @@
             class="bg-white rounded-t-[24px] sm:rounded-[20px] w-full sm:max-w-[520px] z-10 shadow-xl flex flex-col max-h-[85vh]">
             <div class="p-6 pb-4">
                 <h2 class="text-[20px] font-bold text-gray-900 mb-1">Select Products</h2>
-                <p class="text-[14px] text-gray-500">Add products to {{ catalog.name }}.</p>
+                <p class="text-[14px] text-gray-500">Add products to {{ currentCatalog.name }}.</p>
             </div>
 
             <div class="px-6">
@@ -346,23 +346,36 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useCatalogStore } from '../store/catalog'
+import { useProductStore } from '../store/product'
 import Navbar from '../components/Navbar.vue'
 import HeaderComponent from '../components/header.vue'
 import Pagnetion from '../components/pagnetion.vue'
+import { useToast } from 'vue-toastification'
 
-import productImg1 from '../assets/imgs/product/1.webp'
-import productImg2 from '../assets/imgs/product/2.webp'
-import productImg3 from '../assets/imgs/product/3.webp'
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+const catalogStore = useCatalogStore()
+const productStore = useProductStore()
 
 const isSidebarOpen = ref(false)
-const route = useRoute()
 const searchQuery = ref('')
 const activeFilter = ref('All')
 const currentPage = ref(1)
-const perPage = 5
+const perPage = 10
 const selectedIds = ref([])
+const isAddProductsModalOpen = ref(false)
+const addProductsSearch = ref('')
+const addSelectedIds = ref([])
+const isEditModalOpen = ref(false)
+const editCatalog = ref({ name: '', image: '' })
+
+// Current catalog from store
+const catalogId = route.params.id
+const currentCatalog = computed(() => catalogStore.categories.find(c => c.id === catalogId) || { name: 'Loading...', id: catalogId })
 
 const hasSelection = computed(() => selectedIds.value.length > 0)
 const isAllSelected = computed(() =>
@@ -389,39 +402,20 @@ const toggleAll = () => {
     }
 }
 
-const deleteSelected = () => {
-    allProducts.value = allProducts.value.filter(p => !selectedIds.value.includes(p.id))
-    selectedIds.value = []
+const deleteSelected = async () => {
+    if (!confirm(`Are you sure you want to remove ${selectedIds.value.length} products from this catalog?`)) return
+    try {
+        await Promise.all(selectedIds.value.map(productId => 
+            catalogStore.removeProductFromCategory(catalogId, productId)
+        ))
+        toast.success('Products removed from catalog')
+        // Refresh products or update local state
+        await productStore.fetchProducts({ skip: 0, limit: 1000 })
+        selectedIds.value = []
+    } catch (error) {
+        toast.error('Failed to remove some products')
+    }
 }
-
-// Mock catalog data based on route param
-const catalogImages = [productImg1, productImg2, productImg3]
-const catalogIndex = parseInt(route.params.id) || 0
-const catalog = ref({
-    name: 'Catalog ' + (catalogIndex + 1),
-    image: catalogImages[catalogIndex % catalogImages.length]
-})
-
-const isEditModalOpen = ref(false)
-const editCatalog = ref({ name: '', image: '' })
-const isAddProductsModalOpen = ref(false)
-const addProductsSearch = ref('')
-const addSelectedIds = ref([])
-
-// All products available in the store (outside the catalog)
-const storeProducts = ref([
-    { id: 101, name: 'Product1', type: 'Marbel', image: productImg1 },
-    { id: 102, name: 'Product1', type: 'Marbel', image: productImg1 },
-    { id: 103, name: 'Product1', type: 'Marbel', image: productImg1 },
-    { id: 104, name: 'Product1', type: 'Marbel', image: productImg1 },
-])
-
-const availableProducts = computed(() => {
-    if (!addProductsSearch.value) return storeProducts.value
-    return storeProducts.value.filter(p =>
-        p.name.toLowerCase().includes(addProductsSearch.value.toLowerCase())
-    )
-})
 
 const openAddProductsModal = () => {
     addSelectedIds.value = []
@@ -437,50 +431,96 @@ const toggleAddProduct = (id) => {
     }
 }
 
-const confirmAddProducts = () => {
-    const toAdd = storeProducts.value.filter(p => addSelectedIds.value.includes(p.id))
-    const nextId = Math.max(...allProducts.value.map(p => p.id)) + 1
-    toAdd.forEach((p, i) => {
-        allProducts.value.push({
-            id: nextId + i,
-            name: p.name,
-            category: p.type,
-            views: 0,
-            price: 0,
-            status: 'Draft',
-            image: p.image,
-            type: p.type
-        })
-    })
-    isAddProductsModalOpen.value = false
+const confirmAddProducts = async () => {
+    try {
+        await Promise.all(addSelectedIds.value.map(productId => 
+            catalogStore.assignProductToCategory(catalogId, productId)
+        ))
+        toast.success(`${addSelectedIds.value.length} products added to catalog`)
+        await productStore.fetchProducts({ skip: 0, limit: 1000 })
+        isAddProductsModalOpen.value = false
+        addSelectedIds.value = []
+    } catch (error) {
+        toast.error('Failed to add some products')
+    }
 }
 
 const openEditModal = () => {
-    editCatalog.value = { ...catalog.value }
+    editCatalog.value = { ...currentCatalog.value }
     isEditModalOpen.value = true
 }
 
-const saveEdit = () => {
-    catalog.value = { ...editCatalog.value }
+const saveEdit = async () => {
+    // Implement edit category logic if available in store
     isEditModalOpen.value = false
 }
 
-const filters = ['All', 'Marbel', 'Porcelen']
+const filters = ['All', 'Published', 'Draft', 'AI Preview']
 
-// Mock Products
-const allProducts = ref([
-    { id: 1, name: 'Carrara Marble', category: 'Marble · Natural Stone', views: 50, price: 250, status: 'Published', image: productImg1, type: 'Marbel' },
-    { id: 2, name: 'Geometric Ceramic Tile', category: 'Ceramic', views: 125, price: 250, status: 'Draft', image: productImg2, type: 'Porcelen' },
-    { id: 3, name: 'Herringbone Oak Parquet', category: 'Wood', views: 200, price: 250, status: 'AI Preview', image: productImg3, type: 'Marbel' },
-    { id: 4, name: 'Herringbone Oak Parquet', category: 'Wood', views: 200, price: 250, status: 'AI Preview', image: productImg1, type: 'Porcelen' },
-    { id: 5, name: 'Travertine Stone', category: 'Natural Stone', views: 80, price: 350, status: 'Published', image: productImg2, type: 'Marbel' },
-    { id: 6, name: 'Slate Flooring', category: 'Stone', views: 60, price: 180, status: 'Draft', image: productImg3, type: 'Porcelen' },
-])
+onMounted(async () => {
+    try {
+        await Promise.all([
+            catalogStore.fetchCategories(),
+            productStore.fetchProducts({ skip: 0, limit: 1000 })
+        ])
+    } catch (error) {
+        toast.error('Failed to load data')
+    }
+})
+
+const mappedProducts = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    // Filter products that belong to this category (using metadata for now or API check)
+    // Note: If the backend has a specific endpoint for catalog products, it should be used here.
+    // For now, filtering by metadata.category name to match existing logic.
+    return productStore.products
+        .filter(p => p.metadata?.category === currentCatalog.value.name)
+        .map(product => {
+            let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+            if (product.images?.[0]?.url) {
+                imageUrl = product.images[0].url
+                if (imageUrl.startsWith('/')) imageUrl = `${apiUrl}${imageUrl}`
+            }
+            return {
+                id: product.id,
+                name: product.name,
+                category: product.metadata?.category || 'Uncategorized',
+                views: product.metadata?.views || '0',
+                price: product.price?.amount || '0',
+                status: product.status || 'Published',
+                image: imageUrl
+            }
+        })
+})
+
+const availableProducts = computed(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || ''
+    // Products NOT in this catalog
+    let list = productStore.products.filter(p => p.metadata?.category !== currentCatalog.value.name)
+    
+    if (addProductsSearch.value) {
+        list = list.filter(p => p.name.toLowerCase().includes(addProductsSearch.value.toLowerCase()))
+    }
+    
+    return list.map(product => {
+         let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
+            if (product.images?.[0]?.url) {
+                imageUrl = product.images[0].url
+                if (imageUrl.startsWith('/')) imageUrl = `${apiUrl}${imageUrl}`
+            }
+        return {
+            id: product.id,
+            name: product.name,
+            type: product.metadata?.category || 'Uncategorized',
+            image: imageUrl
+        }
+    })
+})
 
 const filteredProducts = computed(() => {
-    let list = allProducts.value
+    let list = mappedProducts.value
     if (activeFilter.value !== 'All') {
-        list = list.filter(p => p.type === activeFilter.value)
+        list = list.filter(p => p.status === activeFilter.value)
     }
     if (searchQuery.value) {
         list = list.filter(p => p.name.toLowerCase().includes(searchQuery.value.toLowerCase()))

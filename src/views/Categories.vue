@@ -65,7 +65,7 @@
                     </div> -->
                     <!-- Categories Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div v-for="(category, index) in categories" :key="index"
+                        <div v-for="category in categories" :key="category.id"
                             class="bg-white rounded-[20px] p-4 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] border border-gray-100 flex items-stretch gap-4 transition-all hover:shadow-md relative group">
 
                             <!-- Left Content -->
@@ -110,7 +110,7 @@
 
                                 <!-- 3 Dot Menu -->
                                 <div class="absolute top-2 left-[-28px]">
-                                    <button @click.stop="toggleMenu(category.name)"
+                                    <button @click.stop="toggleMenu(category.id)"
                                         class="w-8 h-8 flex items-center justify-center text-gray-700 relative z-10">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -122,7 +122,7 @@
                                     </button>
 
                                     <!-- Dropdown Menu -->
-                                    <div v-if="activeMenu === category.name"
+                                    <div v-if="activeMenu === category.id"
                                         class="absolute top-10 left-0 w-32 bg-white rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border border-gray-100 py-1 z-20 overflow-hidden text-left origin-top-left flex flex-col">
                                         <!-- Backdrop specific to this menu -->
                                         <div class="fixed inset-0 z-[-1]" @click.stop="activeMenu = null"></div>
@@ -141,7 +141,7 @@
 
                                         <div class="w-full h-[1px] bg-gray-100 my-0.5"></div>
 
-                                        <button @click="handleDeleteCategory(category.name)"
+                                        <button @click="handleDeleteCategory(category)"
                                             class="w-full px-4 py-2.5 text-left text-[14px] text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -186,8 +186,15 @@
                     <!-- Category Name -->
                     <div>
                         <label class="block text-[14px] font-medium text-gray-900 mb-2">Category Name</label>
-                        <input type="text" v-model="categoryForm.name" placeholder="e.g. Catalog1"
+                        <input type="text" v-model="categoryForm.name" placeholder="e.g. Marble Surfaces"
                             class="w-full px-4 py-3 rounded-[12px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#847365]/20 focus:border-[#847365] transition-colors text-[14px]">
+                    </div>
+
+                    <!-- Category Description -->
+                    <div>
+                        <label class="block text-[14px] font-medium text-gray-900 mb-2">Description</label>
+                        <textarea v-model="categoryForm.description" placeholder="Describe this category..." rows="3"
+                            class="w-full px-4 py-3 rounded-[12px] border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#847365]/20 focus:border-[#847365] transition-colors text-[14px] resize-none"></textarea>
                     </div>
 
                     <!-- Category Image -->
@@ -255,6 +262,7 @@ const isAddingCategory = ref(false)
 
 const categoryForm = reactive({
     name: '',
+    description: '',
     imageFile: null,
     imagePreview: null
 })
@@ -289,7 +297,8 @@ const handleAddCategory = async () => {
     try {
         await catalogStore.createCategory({
             name: categoryForm.name,
-            image: categoryForm.imageFile // Assuming API handles multipart or base64
+            description: categoryForm.description
+            // image: categoryForm.imageFile // Schema doesn't explicitly list image in POST /api/v1/catalog/categories
         })
 
         toast.success(`Category "${categoryForm.name}" created successfully`)
@@ -299,6 +308,7 @@ const handleAddCategory = async () => {
 
         // Reset form
         categoryForm.name = ''
+        categoryForm.description = ''
         categoryForm.imageFile = null
         categoryForm.imagePreview = null
         isAddModalOpen.value = false
@@ -310,12 +320,10 @@ const handleAddCategory = async () => {
     }
 }
 
-const handleDeleteCategory = async (categoryName) => {
-    if (!confirm(`Are you sure you want to delete category "${categoryName}"?`)) return
+const handleDeleteCategory = async (category) => {
+    if (!confirm(`Are you sure you want to delete category "${category.name}"?`)) return
     try {
-        // Find category ID if available
-        const category = catalogStore.categories.find(c => c.name === categoryName)
-        if (category?.id) {
+        if (category.id) {
             await catalogStore.deleteCategory(category.id)
             toast.success('Category deleted successfully')
             await catalogStore.fetchCategories()
@@ -356,43 +364,15 @@ onUnmounted(() => {
     document.removeEventListener('click', closeMenu)
 })
 
-// Categories derived from store with product-derivation fallback
+// Categories derived from store
 const categories = computed(() => {
     const apiUrl = import.meta.env.VITE_API_URL || ''
     
-    // If we have explicit categories from catalogStore, use them
-    if (catalogStore.categories.length > 0) {
-        return catalogStore.categories.map(cat => ({
-            ...cat,
-            productCount: productStore.products.filter(p => p.metadata?.category === cat.name).length,
-            image: cat.image ? (cat.image.startsWith('/') ? `${apiUrl}${cat.image}` : cat.image) : 'https://via.placeholder.com/400x400?text=No+Image'
-        }))
-    }
-
-    // Fallback: derive from products (the old way, but without the "placeholder" hack)
-    const catMap = {}
-    productStore.products.forEach(product => {
-        if (product.metadata?.is_dummy) return // Ignore remnants of the hack
-        
-        const catName = product.metadata?.category || 'Uncategorized'
-        if (!catMap[catName]) {
-            let imageUrl = 'https://via.placeholder.com/400x400?text=No+Image'
-            if (product.images?.[0]?.url) {
-                imageUrl = product.images[0].url
-                if (imageUrl.startsWith('/')) {
-                    imageUrl = `${apiUrl}${imageUrl}`
-                }
-            }
-            catMap[catName] = {
-                name: catName,
-                productCount: 0,
-                image: imageUrl
-            }
-        }
-        catMap[catName].productCount++
-    })
-
-    return Object.values(catMap).sort((a, b) => a.name.localeCompare(b.name))
+    return catalogStore.categories.map(cat => ({
+        ...cat,
+        productCount: productStore.products.filter(p => p.metadata?.category === cat.name).length,
+        image: cat.image ? (cat.image.startsWith('/') ? `${apiUrl}${cat.image}` : cat.image) : 'https://via.placeholder.com/400x400?text=No+Image'
+    }))
 })
 
 </script>
